@@ -9,5 +9,7 @@
 import './styles/app.css';
 
 // start the Stimulus application
+
+import 'jquery.easing';
 import './js/scripts';
-import './bootstrap';
+import 'bootstrap';

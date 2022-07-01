@@ -1,4 +1,6 @@
-(function($) {
+import $ from 'jquery';
+
+$(function () {
   "use strict";
   
   $("#menu-toggle").on('click', function(e) {

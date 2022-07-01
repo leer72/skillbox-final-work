@@ -4,6 +4,10 @@
  * Licensed under MIT (https://github.com/StartBootstrap/skillbox-symfony-diploma-layout/blob/master/LICENSE)
  */
 
+@import "~bootstrap";
+@import '~@fortawesome/fontawesome-free/css/all.min.css';
+@import url("https://fonts.googleapis.com/css?family=Roboto:300,400,700,300italic,400italic,700italic");
+
 body {
   font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
