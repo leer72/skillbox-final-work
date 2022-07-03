@@ -9,7 +9,9 @@
 import './styles/app.css';
 
 // start the Stimulus application
+import $ from 'jquery';
+require ('jquery.easing');
+require ('bootstrap');
+require ('./js/dashboard');
 
-import 'jquery.easing';
-import './js/scripts';
-import 'bootstrap';
+require ('./js/scripts');
