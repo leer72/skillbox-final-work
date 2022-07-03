@@ -8,4 +8,4 @@ $(function () {
     $("#wrapper").toggleClass("toggled");
   });
 
-})(jQuery);
+});
