@@ -61,6 +61,10 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
             Security::LAST_USERNAME,
             $credentials['email']
         );
+        $request->getSession()->set(
+            'remember_me',
+            $request->request->get('_remember_me')
+        );
         
         return $credentials;
     }
