@@ -14,4 +14,12 @@ class BlaBlaArticleController extends AbstractController
     {
         return $this->render('homepage.html.twig');
     }
+
+    /**
+     * @Route("/try", name="app_try")
+     */
+    public function try()
+    {
+        return $this->render('try.html.twig');
+    }
 }
