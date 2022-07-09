@@ -6,38 +6,70 @@
             <div class="col-sm-9 col-md-7 col-lg-5 mx-auto">
 
             <h2 class="card-title text-center mb-4">Создание статьи</h2>
-            {% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
-                        
-            <form class="form-signin">
-                <div class="form-label-group">
-                <input type="text" id="articleTitle" class="form-control" placeholder="Заголовок статьи" required autofocus value="Тестовая статья">
-                <label for="articleTitle">Заголовок статьи</label>
-                </div>
-                <div class="form-label-group">
-                <input type="text" id="articleWord" class="form-control" placeholder="Продвигаемое слово" required>
-                <label for="articleWord">Продвигаемое слово</label>
-                </div>
-
-                <button class="btn btn-lg btn-primary btn-block text-uppercase" type="submit">Попробовать</button>
-            </form>
-            {% else %}
+           
+            {% if not is_granted('IS_AUTHENTICATED_REMEMBERED') %}
             <div class="alert alert-info" role="alert">
                 Чтобы создать статью по настоящему <a href="{{ path('app_register') }}">Зарегистрируйтесь</a>
             </div>
+            {% endif %}
+
+            {% if article is not null %}
+            <div class="alert alert-danger" role="alert">
+               Демонстрационная форма не доступна
+            </div>
+            {% endif %}
             
-            <form class="form-signin">
+            {{ form_start(articleForm, {
+                attr: { class: 'form-signin' }
+            }) }}
+                
+                {% if article is not null %}
+
                 <div class="form-label-group">
-                <input type="email" id="articleTitle" class="form-control" placeholder="Заголовок статьи" required autofocus value="Тестовая статья" disabled>
-                <label for="articleTitle">Заголовок статьи</label>
+                {{ form_widget(articleForm.title, {
+                    attr: { placeholder: 'Заголовок статьи', class: 'form-control', disabled: true}
+                }) }}
+                {{ form_label(articleForm.title, 'Заголовок статьи', {
+                    label_attr: { for: 'try_form_title'}
+                }) }}
                 </div>
+
                 <div class="form-label-group">
-                <input type="email" id="articleWord" class="form-control" placeholder="Продвигаемое слово" required disabled>
-                <label for="articleWord">Продвигаемое слово</label>
+                {{ form_widget(articleForm.keyword, {
+                    attr: { placeholder: 'Продвигаемое слово', class: 'form-control', disabled: true}
+                }) }}
+                {{ form_label(articleForm.keyword, 'Продвигаемое слово', {
+                    label_attr: { for: 'try_form_keyword'}
+                }) }}
                 </div>
 
                 <button class="btn btn-lg btn-primary btn-block text-uppercase" type="submit" disabled>Попробовать</button>
-            </form>
-            {% endif %}
+
+                {% else %}
+
+                <div class="form-label-group">
+                {{ form_widget(articleForm.title, {
+                    attr: { placeholder: 'Заголовок статьи', class: 'form-control'}
+                }) }}
+                {{ form_label(articleForm.title, 'Заголовок статьи', {
+                    label_attr: { for: 'try_form_title'}
+                }) }}
+                </div>
+
+                <div class="form-label-group">
+                {{ form_widget(articleForm.keyword, {
+                    attr: { placeholder: 'Продвигаемое слово', class: 'form-control'}
+                }) }}
+                {{ form_label(articleForm.keyword, 'Продвигаемое слово', {
+                    label_attr: { for: 'try_form_keyword'}
+                }) }}
+                </div>
+
+                <button class="btn btn-lg btn-primary btn-block text-uppercase" type="submit">Попробовать</button>
+
+                {% endif %}
+            
+            {{ form_end(articleForm) }}
             </div>
         </div>
         </div>
@@ -50,33 +82,43 @@
         <div class="row">
             <div class="col-lg-12 mx-auto">
 
-            <h2 class="card-title text-center mb-4">Тестовая статья</h2>
+            <h2 class="card-title text-center mb-4">
+            {% if article is not null %}
+                {{ article.title | raw }}
+            {% else %}
+                Тестовая статья
+            {% endif %}
+            </h2>
             
-            <div class="row">
-                <div class="p-3">
-                <h2>Добавляйте свои слова</h2>
-                <p class="lead mb-0">При генерации контента статьи, вы можете наполнить его нужными словами для вашего бизнеса. Столько сколько нужно. Хоть все ими заполоните!</p>
-                </div>
-            </div>
-            <div class="row">
-                <div class="showcase-text p-3">
-                <div class="media">
-                    <div class="media-body">
-                    <h2>Вставляйте изображения</h2>
-                    <p class="lead mb-0">Надоели стандартные красивые изображения. Прикрепляйте к вашим статьям свою уникальные фотографии. Смазанные, с пальцем на пол фотографии, с кривым лицом. Все пойдет - вы здесь главный!</p>
-                    <p class="lead mb-0">Надоели стандартные красивые изображения. Прикрепляйте к вашим статьям свою уникальные фотографии. Смазанные, с пальцем на пол фотографии, с кривым лицом. Все пойдет - вы здесь главный!</p>
+            {% if article is not null %}
+                {{ article.body | raw }}
+            {% else %}
+                <div class="row">
+                    <div class="p-3">
+                    <h2>Добавляйте свои слова</h2>
+                    <p class="lead mb-0">При генерации контента статьи, вы можете наполнить его нужными словами для вашего бизнеса. Столько сколько нужно. Хоть все ими заполоните!</p>
                     </div>
-                    <img class="ml-3" src="{{ asset('img/bg-showcase-2.jpg') }}" width="518" height="345" alt="">
                 </div>
-                
+                <div class="row">
+                    <div class="showcase-text p-3">
+                    <div class="media">
+                        <div class="media-body">
+                        <h2>Вставляйте изображения</h2>
+                        <p class="lead mb-0">Надоели стандартные красивые изображения. Прикрепляйте к вашим статьям свою уникальные фотографии. Смазанные, с пальцем на пол фотографии, с кривым лицом. Все пойдет - вы здесь главный!</p>
+                        <p class="lead mb-0">Надоели стандартные красивые изображения. Прикрепляйте к вашим статьям свою уникальные фотографии. Смазанные, с пальцем на пол фотографии, с кривым лицом. Все пойдет - вы здесь главный!</p>
+                        </div>
+                        <img class="ml-3" src="{{ asset('img/bg-showcase-2.jpg') }}" width="518" height="345" alt="">
+                    </div>
+                    
+                    </div>
                 </div>
-            </div>
-            <div class="row">
-                <div class="p-3">
-                <h2>Интегрируйтесь по API</h2>
-                <p class="lead mb-0">Придумайте и настройте свою собственную интеграцию с сервисом. Нужно ответить на комментарий в соц.сети - получите его по API. Нужно написать новую статью по программированию - получите ее по API. Хотите вкусно покушать - сходите за едой, а статью пускай за вас напишет API!</p>
+                <div class="row">
+                    <div class="p-3">
+                    <h2>Интегрируйтесь по API</h2>
+                    <p class="lead mb-0">Придумайте и настройте свою собственную интеграцию с сервисом. Нужно ответить на комментарий в соц.сети - получите его по API. Нужно написать новую статью по программированию - получите ее по API. Хотите вкусно покушать - сходите за едой, а статью пускай за вас напишет API!</p>
+                    </div>
                 </div>
-            </div>
+                {% endif %}
             </div>
         </div>
         </div>

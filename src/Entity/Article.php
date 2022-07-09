@@ -5,7 +5,6 @@ namespace App\Entity;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
-use Symfony\Component\Validator\Constraints as Assert;
 use Doctrine\DBAL\Types\Types;
 
 /**
@@ -23,25 +22,30 @@ class Article
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="text", nullable=true)
      */
     private $title;
 
     /**
-     * @Gedmo\Slug(fields={"title"})
+     * @ORM\Column(type="string", length=255)
+     */
+    private $theme;
+
+    /**
+     * @Gedmo\Slug(fields={"theme"})
      * @ORM\Column(type="string", length=100, unique=true)
      */
     private $slug;
 
     /**
-     * @ORM\Column(type="text")
+     * @ORM\Column(type="text", nullable=true)
      */
     private $body;
 
     /**
-     * @ORM\Column(type="string", length=255, nullable=true)
+     * @ORM\Column(type="array", nullable=true)
      */
-    private $keywords;
+    private $words;
 
     /**
      * @var \DateTime
@@ -57,6 +61,11 @@ class Article
      * @ORM\JoinColumn(nullable=false)
      */
     private $author;
+
+    /**
+     * @ORM\OneToOne(targetEntity=Keyword::class, inversedBy="article", cascade={"persist", "remove"})
+     */
+    private $keyword;
 
     public function getId(): ?int
     {
@@ -99,18 +108,6 @@ class Article
         return $this;
     }
 
-    public function getKeywords(): ?string
-    {
-        return $this->keywords;
-    }
-
-    public function setKeywords(?string $keywords): self
-    {
-        $this->keywords = $keywords;
-
-        return $this;
-    }
-
     public function getAuthor(): ?User
     {
         return $this->author;
@@ -119,6 +116,37 @@ class Article
     public function setAuthor(?User $author): self
     {
         $this->author = $author;
+
+        return $this;
+    }
+
+    public function getKeyword(): ?Keyword
+    {
+        return $this->keyword;
+    }
+
+    public function setKeyword(?Keyword $keyword): self
+    {
+        $this->keyword = $keyword;
+
+        return $this;
+    }
+
+    public function setWords(array $words): self
+    {
+        $this->words = $words;
+
+        return $this;
+    }
+
+    public function getTheme(): ?string
+    {
+        return $this->theme;
+    }
+
+    public function setTheme(string $theme): self
+    {
+        $this->theme = $theme;
 
         return $this;
     }
