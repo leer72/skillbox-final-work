@@ -59,22 +59,14 @@ class ArticleContentProvider
 
         $modulesPool = []; //Соберем сюда пул модулей для генерации статьи 
 
-        if ($modules == count($baseModules)) {
-            $modulesPool = $baseModules;
-        } elseif($modules > count($baseModules)) { //обеспечим использование каждого модуля и накидаем сверху рандомными значениями
-            $modulesPool = $baseModules;
-            for ($i = 1; $i <= $modules - count($baseModules); $i++) {
+        if ($modules > 0) {
+            for ($i = 1; $i <= $modules; $i++) {
                 $modulesPool[] = $baseModules[rand(0, count($baseModules) - 1)];
             }
         } else {
-            for ($i = 1; $i <= $modules; $i++) {
-                $j = rand(0, count($baseModules) - 1);
-                if($j < 0) {
-                    $j = 0;
-                }
-                $modulesPool[] = $baseModules[$j];
-            }
+            return '';
         }
+        
         // Генерируем текст из пула модулей
         foreach($modulesPool as $module) { 
             $modulesAsText .= $module;
