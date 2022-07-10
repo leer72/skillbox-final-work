@@ -73,7 +73,6 @@ class ArticleContentProvider
                     $j = 0;
                 }
                 $modulesPool[] = $baseModules[$j];
-                array_splice($baseModules, $j, 1); //для обеспечения уникальности удаляем использованный модуль
             }
         }
         // Генерируем текст из пула модулей
