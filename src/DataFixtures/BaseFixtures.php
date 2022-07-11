@@ -13,6 +13,8 @@ abstract class BaseFixtures extends Fixture
      */
     protected $faker;
 
+    protected $pool = [];
+
     /**
      * @var ObjectManager
      */
@@ -65,5 +67,17 @@ abstract class BaseFixtures extends Fixture
         }
 
         return $this->getReference($this->faker->randomElement($this->referencesIndex[$className]));
+    }
+
+    protected function inPool($value)
+    {
+        foreach($this->pool as $element) {
+            if($element == $value) {
+                
+                return true;
+            }
+        }
+
+        return false;
     }
 }
