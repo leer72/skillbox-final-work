@@ -12,6 +12,8 @@ import './styles/app.css';
 import $ from 'jquery';
 require ('jquery.easing');
 require ('bootstrap');
+require ('./js/words');
 require ('./js/dashboard');
 
 require ('./js/scripts');
+

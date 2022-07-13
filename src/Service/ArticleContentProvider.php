@@ -5,6 +5,7 @@ namespace App\Service;
 use Faker\Factory;
 use App\Entity\Keyword;
 use App\Twig\StringLoader;
+use Doctrine\Common\Collections\Collection;
 
 class ArticleContentProvider
 {
@@ -25,7 +26,7 @@ class ArticleContentProvider
         $this->faker = Factory::create();
     }
     
-    public function getBody(Keyword $keyword, array $words = [], int $modules = 3): string
+    public function getBody(Keyword $keyword, Collection $words = null, int $modules = 3): string
     {
         // Пока не реализован класс модулей - делаем их статичными
         $baseModules[] = <<<EOF
@@ -76,10 +77,12 @@ class ArticleContentProvider
         $wordsCount = 0;
 
         // Создаем пул вставляемых слов
-        foreach($words as $word => $count) {
-            for ($i = 1; $i <= $count; $i++) {
-                $wordsPool[] = $word;
-                $wordsCount++;
+        if(null != $words) {
+            foreach($words as $word) {
+                for ($i = 1; $i <= $word->getCount(); $i++) {
+                    $wordsPool[] = $word->getWord();
+                    $wordsCount++;
+                }
             }
         }
 
@@ -123,22 +126,17 @@ class ArticleContentProvider
                 $pos, 
                 ($i > $paragraphCount) ? strlen(self::$placeholderParagraphs) : strlen(self::$placeholderParagraph)
             );
-            
         }
 
         $twig = new \Twig\Environment($this->loader);
         
-        return $twig->render($modulesAsText, [  // Для обработки словоформ бует реализовано расширение твиг
-            'keyword' => $keyword,
-        ]);
+        return (count($keyword->getKeyword())) ? $twig->render($modulesAsText, ['keyword' => $keyword,]) : $twig->render($modulesAsText);
     }
 
     public function getTitle(string $title, Keyword $keyword): string
     {
         $twig = new \Twig\Environment($this->loader);
         
-        return $twig->render('<h1> ' . $title . ' </h1>', [
-            'keyword' => $keyword,
-        ]);
+        return (count($keyword->getKeyword())) ? $twig->render('<h1> ' . $title . ' </h1>', ['keyword' => $keyword,]) : $twig->render('<h1> ' . $title . ' </h1>');
     }
 }

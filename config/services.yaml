@@ -22,3 +22,15 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+
+    App\Service\CucumberTheme:
+        tags:
+            - { name: 'skillbox_diploma_layout.theme_provider' }
+
+    App\Service\CityTheme:
+        tags:
+            - { name: 'skillbox_diploma_layout.theme_provider' }
+    
+    App\Service\ThemeContentProvider:
+        arguments:
+            - !tagged_iterator skillbox_diploma_layout.theme_provider

@@ -1,0 +1,227 @@
+{% extends 'dashboard/base.html.twig' %}
+{% block body %}
+
+    <div class="container-fluid">
+        <h1 class="mt-4">Создание статьи</h1>
+        <div class="row">
+          
+            <div class="col-xl-6">
+                <div class="alert alert-danger" role="alert">
+                Превышен лимит создания статей, чтобы снять лимит <a href="#">Улучшите подписку</a>
+                </div>
+
+                {{ form_start(articleForm, {
+                    attr: { class: 'form-signin' }
+                }) }}
+                <div class="form-group">
+                    {{ form_label(articleForm.theme, 'Тематика', {
+                        label_attr: { for: 'article_form_theme'}
+                    }) }}
+                    {{ form_widget(articleForm.theme, {
+                        attr: { placeholder: 'Тематика', class: 'form-control'}
+                    }) }}
+                    
+                </div>
+                <div class="form-label-group">
+                    {{ form_widget(articleForm.title, {
+                        attr: { placeholder: 'Заголовок статьи', class: 'form-control'}
+                    }) }}
+                    {{ form_label(articleForm.title, 'Заголовок статьи', {
+                        label_attr: { for: 'article_form_title'}
+                    }) }}
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <p class="card-title">Ключевое слово</p>
+                        <div class="form-label-group">
+                            {{ form_widget(articleForm.keyword_0, {
+                            attr: { placeholder: 'Ключевое слово', class: 'form-control'}
+                            }) }}
+                            {{ form_label(articleForm.keyword_0, 'Ключевое слово', {
+                                label_attr: { for: 'article_form_keyword_0'}
+                            }) }}
+                        </div>
+
+                        <div class="form-label-group">
+                            {{ form_widget(articleForm.keyword_1, {
+                            attr: { placeholder: 'Родительный падеж', class: 'form-control'}
+                            }) }}
+                            {{ form_label(articleForm.keyword_1, 'Родительный падеж', {
+                                label_attr: { for: 'article_form_keyword_1'}
+                            }) }}
+                        </div>
+
+                        <div class="form-label-group">
+                            {{ form_widget(articleForm.keyword_2, {
+                            attr: { placeholder: 'Дательный падеж', class: 'form-control'}
+                            }) }}
+                            {{ form_label(articleForm.keyword_2, 'Дательный падеж', {
+                                label_attr: { for: 'article_form_keyword_2'}
+                            }) }}
+                        </div>
+
+                        <div class="form-label-group">
+                            {{ form_widget(articleForm.keyword_3, {
+                            attr: { placeholder: 'Винительный падеж', class: 'form-control'}
+                            }) }}
+                            {{ form_label(articleForm.keyword_3, 'Винительный падеж', {
+                                label_attr: { for: 'article_form_keyword_3'}
+                            }) }}
+                        </div>
+
+                        <div class="form-label-group">
+                            {{ form_widget(articleForm.keyword_4, {
+                            attr: { placeholder: 'Творительный падеж', class: 'form-control'}
+                            }) }}
+                            {{ form_label(articleForm.keyword_4, 'Творительный падеж', {
+                                label_attr: { for: 'article_form_keyword_4'}
+                            }) }}
+                        </div>
+
+                        <div class="form-label-group">
+                            {{ form_widget(articleForm.keyword_5, {
+                            attr: { placeholder: 'Предложный падеж', class: 'form-control'}
+                            }) }}
+                            {{ form_label(articleForm.keyword_5, 'Предложный падеж', {
+                                label_attr: { for: 'article_form_keyword_5'}
+                            }) }}
+                        </div>
+
+                        <div class="form-label-group">
+                            {{ form_widget(articleForm.keyword_6, {
+                            attr: { placeholder: 'Множественное число', class: 'form-control'}
+                            }) }}
+                            {{ form_label(articleForm.keyword_6, 'Множественное число', {
+                                label_attr: { for: 'article_form_keyword_6'}
+                            }) }}
+                        </div>
+                    
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col">
+                        <div class="form-label-group">
+                            {{ form_widget(articleForm.sizeFrom, {
+                            attr: { placeholder: 'Размер статьи от', class: 'form-control'}
+                            }) }}
+                            {{ form_label(articleForm.sizeFrom, 'Размер статьи от', {
+                                label_attr: { for: 'article_form_sizeFrom'}
+                            }) }}
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-label-group">
+                            {{ form_widget(articleForm.sizeTo, {
+                            attr: { placeholder: 'до', class: 'form-control'}
+                            }) }}
+                            {{ form_label(articleForm.sizeTo, 'до', {
+                                label_attr: { for: 'article_form_sizeTo'}
+                            }) }}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card mb-4">
+                    <div class="card-body words-fields-list"  id="words-fields-list" data-prototype='<div class="row" id="article_form_words___name__"><div class="col"><div class="form-label-group"><input type="text" class="form-control" id="article_form_words___name___word" name="article_form[words][__name__][word]" required="required" placeholder="Продвигаемое слово" /><label for="article_form_words___name___word" class="required">Продвигаемое слово</label></div></div><div class="col"><div class="form-label-group"><input type="text" class="form-control" id="article_form_words___name___count" name="article_form[words][__name__][count]" required="required" placeholder="кол-во" /><label for="article_form_words___name___count" class="required">кол-во</label></div></div></div>' data-index="{{ articleForm.words|length }}">
+                        <p class="card-title">Продвигаемые слова</p>
+                        {% for wordsFields in articleForm.words %}
+                            <div class="row" id="article_form_words_0">
+                                <div class="col">
+                                    <div class="form-label-group" >
+                                        {{ form_widget(wordsFields.word, {
+                                        attr: { placeholder: 'Продвигаемое слово', class: 'form-control'}
+                                        }) }}
+                                        {{ form_label(wordsFields.word, 'Продвигаемое слово', {
+                                            label_attr: { for: 'word_fields_word'}
+                                        }) }}
+                                    </div>
+                                </div>
+
+                                <div class="col">
+                                    <div class="form-label-group">
+                                        {{ form_widget(wordsFields.count, {
+                                        attr: { placeholder: 'кол-во', class: 'form-control'}
+                                        }) }}
+                                        {{ form_label(wordsFields.count, 'кол-во', {
+                                            label_attr: { for: 'word_fields_count'}
+                                        }) }}
+                                    </div>
+                            </div>
+                        {% endfor %}
+
+                    <a href="#" class="add-another-word" id="add-another-word">Еще слово</a>
+                    </div>
+                    
+                </div>
+
+                <div class="form-group">
+                    {{ form_label(articleForm.image, 'Изображения', {
+                        label_attr: { for: 'article_form_image'}
+                    }) }}
+                    {{ form_widget(articleForm.image, {
+                    attr: { placeholder: 'Изображения', class: 'form-control-file', multiple: true}
+                    }) }}
+                </div>
+                    
+                <button class="btn btn-lg btn-primary btn-block text-uppercase" type="submit">Создать</button>
+                {{ form_end(articleForm) }}
+
+            </div>
+        </div>
+        
+        <hr>
+
+        <h2 class="mt-4">Ваша статья</h2>
+        
+        <hr>
+        
+        <div class="row">
+
+            <div class="col-xl-6">
+
+                {% if article is not null %}
+                    {{ article.title | raw }}
+                {% else %}
+                    <h1 class="mt-4">Тестовая статья</h1>
+                {% endif %}
+                
+                {% if article is not null%}
+                    {{ article.body | raw }}
+                {% else %}
+                    <div class="media">
+                        <img class="mr-3" src="{{ asset('https://via.placeholder.com/250x250') }}" height="250" alt="">
+                        <div class="media-body">
+                            <p>Lorem Ipsum <b>EXAMPLE</b> dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                            <p>Lorem Ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. <b>EXAMPLE</b> Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <p>Lorem Ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore <b>EXAMPLE</b> magna <b>EXAMPLE</b> aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex <b>EXAMPLE</b> ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                        </div>
+                        <div class="col-sm-6">
+                            <p>Lorem Ipsum dolor sit amet, consectetur adipiscing elit <b>EXAMPLE</b>, sed do eiusmod tempor incididunt ut labore et dolore magna <b>EXAMPLE</b> aliqua. </p>
+                            <p>Lorem Ipsum dolor sit amet, consectetur <b>EXAMPLE</b> adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore <b>EXAMPLE</b> magna <b>EXAMPLE</b> aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex <b>EXAMPLE</b> ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                        </div>
+                    </div>
+                
+                    <div class="media">
+                        <div class="media-body">
+                            <p>Lorem Ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                            <p>Lorem Ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad <b>EXAMPLE</b> minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                        </div>
+                        <img class="ml-3" src="{{ asset('https://via.placeholder.com/250x250') }}" width="250" height="250" alt="">
+                    </div>
+
+                    <h3>Eheu, domina!</h3>
+                    <p><b>EXAMPLE</b> Lorem Ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                {% endif %}
+            </div>
+          
+        </div>
+        
+    </div>
+{% endblock %}
