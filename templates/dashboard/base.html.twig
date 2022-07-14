@@ -21,8 +21,8 @@
     <div class="bg-light border-right" id="sidebar-wrapper">
       <div class="sidebar-heading">BlaBlaArticle</div>
       <div class="list-group list-group-flush">
-        <a href="{{ path('app_dashboard') }}"     class="list-group-item list-group-item-action active">Рабочий стол</a>
-        <a href="{{ path('app_dashboard') }}"     class="list-group-item list-group-item-action bg-light">Создать статью</a>
+        <a href="{{ path('app_dashboard') }}"     class="list-group-item list-group-item-action {% if app.request.attributes.get('_route') == 'app_dashboard' %} active {% else %} bg-light {% endif %}">Рабочий стол</a>
+        <a href="{{ path('app_create_article') }}"     class="list-group-item list-group-item-action {% if app.request.attributes.get('_route') == 'app_create_article' %} active {% else %} bg-light {% endif %}">Создать статью</a>
         <a href="{{ path('app_dashboard') }}"     class="list-group-item list-group-item-action bg-light">История статей</a>
         <a href="{{ path('app_dashboard') }}"     class="list-group-item list-group-item-action bg-light">Подписка</a>
         <a href="{{ path('app_dashboard') }}"     class="list-group-item list-group-item-action bg-light">Профиль</a>

@@ -5,6 +5,7 @@ namespace App\DataFixtures;
 use App\Entity\User;
 use App\Entity\Article;
 use App\Entity\Keyword;
+use App\Entity\Word;
 use App\Service\ArticleContentProvider;
 use Doctrine\Persistence\ObjectManager;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
@@ -30,23 +31,24 @@ class ArticleFixtures extends BaseFixtures implements DependentFixtureInterface
             
             $this->pool[] = $keyword;
             
-            $words = array(
-                $this->faker->word() => $this->faker->numberBetween(1, 7), 
-                $this->faker->word() => $this->faker->numberBetween(1, 7), 
-                $this->faker->word() => $this->faker->numberBetween(1, 7), 
-                $this->faker->word() => $this->faker->numberBetween(1, 7),
-            );
-            
+            for($i = 1; $i < 3; $i++) {
+                $word = $this->getRandomReference(Word::class);
+                $article->addWord($word);
+            }
+            $words = $article->getWords();
+
+            $sizeFrom = $sizeTo = rand(1, 5);
             $title = $this->contentProvider->getTitle('Покупайте наш {{ keyword }}', $keyword);
-            $content = $this->contentProvider->getBody($keyword, $words, rand(1, 5));
+            $content = $this->contentProvider->getBody($keyword, $words, $sizeFrom);
 
             $article
                 ->setTitle($title)
-                ->setWords($words)
                 ->setBody($content)
                 ->setKeyword($keyword)
-                ->setTheme($this->faker->text(20))
                 ->setAuthor($this->getRandomReference(User::class))
+                ->setSlug($this->faker->slug())
+                ->setSizeFrom($sizeFrom)
+                ->getSizeTo($sizeTo)
             ;
         });
 
@@ -58,6 +60,7 @@ class ArticleFixtures extends BaseFixtures implements DependentFixtureInterface
         return [
             UserFixtures::class,
             KeywordFixtures::class,
+            WordsFixtures::class,
         ];
     }
 }

@@ -11,6 +11,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\String\Slugger\AsciiSlugger;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class BlaBlaArticleController extends AbstractController
@@ -60,11 +61,19 @@ class BlaBlaArticleController extends AbstractController
             $keyword = (new Keyword())->setKeyword($form->get('keyword')->getData());
             
             $article->setKeyword($keyword);
+
+            $slugger = new AsciiSlugger();
+            
+            if($article->getTitle()) {
+                $article->setSlug($slugger->slug($article->getTitle()) . '_' . uniqid());
+            } else {
+                $article->setSlug($slugger->slug(uniqid()));
+            }
+
             $article
                 ->setBody($contentProvider->getBody($keyword))
                 ->setTitle($contentProvider->getTitle($article->getTitle(), $keyword))
-                ->setAuthor($userRepository->findOneBy(['email' => 'admin@blablaarticle.ru']))
-                ->setTheme('Пробная статья')
+                ->setAuthor($userRepository->findOneBy(['email' => 'non_auth_user@blablaarticle.ru']))
             ;
 
             $em->persist($article);

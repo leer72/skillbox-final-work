@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
@@ -27,12 +29,6 @@ class Article
     private $title;
 
     /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $theme;
-
-    /**
-     * @Gedmo\Slug(fields={"theme"})
      * @ORM\Column(type="string", length=100, unique=true)
      */
     private $slug;
@@ -41,11 +37,6 @@ class Article
      * @ORM\Column(type="text", nullable=true)
      */
     private $body;
-
-    /**
-     * @ORM\Column(type="array", nullable=true)
-     */
-    private $words;
 
     /**
      * @var \DateTime
@@ -66,6 +57,26 @@ class Article
      * @ORM\OneToOne(targetEntity=Keyword::class, inversedBy="article", cascade={"persist", "remove"})
      */
     private $keyword;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Word::class, mappedBy="article")
+     */
+    private $words;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $sizeFrom;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $sizeTo;
+
+    public function __construct()
+    {
+        $this->words = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -131,22 +142,56 @@ class Article
 
         return $this;
     }
-
-    public function setWords(array $words): self
+    /**
+     * @return Collection<int, Word>
+     */
+    public function getWords(): Collection
     {
-        $this->words = $words;
+        return $this->words;
+    }
+
+    public function addWord(Word $word): self
+    {
+        if (!$this->words->contains($word)) {
+            $this->words[] = $word;
+            $word->setArticle($this);
+        }
 
         return $this;
     }
 
-    public function getTheme(): ?string
+    public function removeWord(Word $word): self
     {
-        return $this->theme;
+        if ($this->words->removeElement($word)) {
+            // set the owning side to null (unless already changed)
+            if ($word->getArticle() === $this) {
+                $word->setArticle(null);
+            }
+        }
+
+        return $this;
     }
 
-    public function setTheme(string $theme): self
+    public function getSizeFrom(): ?int
     {
-        $this->theme = $theme;
+        return $this->sizeFrom;
+    }
+
+    public function setSizeFrom(?int $sizeFrom): self
+    {
+        $this->sizeFrom = $sizeFrom;
+
+        return $this;
+    }
+
+    public function getSizeTo(): ?int
+    {
+        return $this->sizeTo;
+    }
+
+    public function setSizeTo(?int $sizeTo): self
+    {
+        $this->sizeTo = $sizeTo;
 
         return $this;
     }

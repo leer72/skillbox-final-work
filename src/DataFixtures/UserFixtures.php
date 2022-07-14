@@ -25,7 +25,13 @@ class UserFixtures extends BaseFixtures
                 ->setRoles(['ROLE_ADMIN']);
             ;
         });
-        
+        $this->create(User::class, function (User $user) use ($manager) {
+            $user
+                ->setfirstName('non_auth_user')
+                ->setEmail('non_auth_user@blablaarticle.ru')
+                ->setPassword($this->passwordEncoder->encodePassword($user, '123456'))
+            ;
+        });
         $this->createMany(User::class, 10, function (User $user) use ($manager) {
             $user
                 ->setfirstName($this->faker->firstName())

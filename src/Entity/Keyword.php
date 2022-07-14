@@ -32,7 +32,7 @@ class Keyword
         return $this->id;
     }
 
-    public function getKeyword(int $num = 0): string
+    public function getKeywordForm(int $num = 0): string
     {
         if ( count($this->keyword) >= $num) {
             
@@ -78,5 +78,10 @@ class Keyword
     public function __toString()
     {
         return $this->keyword[0];
+    }
+
+    public function getKeyword()
+    {
+        return $this->keyword;
     }
 }
