@@ -22,8 +22,17 @@ class KeywordFixtures extends BaseFixtures
     {
         $this->createMany(Keyword::class, 10, function (Keyword $keyword) use ($manager) {
             // Пока не используем словоформы - оставляем только один элемент массива
+            $word = $this->faker->randomElement(self::$words);
             $keyword
-                ->setKeyword(array($this->faker->randomElement(self::$words)))
+                ->setKeyword(array(
+                    $word,
+                    $word,
+                    $word,
+                    $word,
+                    $word,
+                    $word,
+                    $word
+                    ))
             ;
         });
 
