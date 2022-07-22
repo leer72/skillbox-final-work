@@ -7,6 +7,7 @@ use App\Entity\Keyword;
 use App\Entity\Word;
 use App\Form\ArticleFormType;
 use App\Service\ArticleContentProvider;
+use App\Service\FileUploader;
 use App\Service\ThemeContentProvider;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\FormInterface;
@@ -35,7 +36,8 @@ class BlaBlaArticleDashboardController extends AbstractController
         EntityManagerInterface $em, 
         Request $request,
         ArticleContentProvider $contentProvider,
-        ThemeContentProvider $themeContentProvider
+        ThemeContentProvider $themeContentProvider,
+        FileUploader $articleFileUploader
     )
     {
         $article = new Article();
@@ -46,7 +48,8 @@ class BlaBlaArticleDashboardController extends AbstractController
             $em, 
             $request, 
             $contentProvider, 
-            $themeContentProvider
+            $themeContentProvider,
+            $articleFileUploader
         );
        
         $errors = $form->getErrors();
@@ -63,7 +66,8 @@ class BlaBlaArticleDashboardController extends AbstractController
         EntityManagerInterface $em, 
         Request $request,
         ArticleContentProvider $contentProvider,
-        ThemeContentProvider $themeContentProvider
+        ThemeContentProvider $themeContentProvider,
+        FileUploader $articleFileUploader
     ) {
         $form->handleRequest($request);
         
@@ -77,10 +81,14 @@ class BlaBlaArticleDashboardController extends AbstractController
             
             $keywordFromForm = [];
             for($i = 0; $i <= 6; $i++) {
-                $keywordFromForm[] = $form->get('keyword_' . $i)->getData();
+                if($form->get('keyword_' . $i)->getData()) {
+                    $keywordFromForm[] = $form->get('keyword_' . $i)->getData();
+                } elseif(count($keywordFromForm) > 0) {
+                    $keywordFromForm[] = $keywordFromForm[0];
+                }
             }
             
-            if($keywordFromForm[0] && count($keywordFromForm)) {
+            if((count($keywordFromForm) > 0) && count($keywordFromForm)) {
                 $keyword = (new Keyword)->setKeyword($keywordFromForm);
             } else {
                 $keyword = null;
@@ -120,6 +128,12 @@ class BlaBlaArticleDashboardController extends AbstractController
                 $article->setSlug($slugger->slug(uniqid()));
             }
 
+            /** @var UploadedFile|null $image */
+            $images = $form->get('image')->getData();
+            foreach($images as $image) {
+                $article->setImageFilename($articleFileUploader->uploadFile($image));
+            }
+
             if($theme) {
                 $article
                     ->setBody($theme->getParagraphs($keyword))
@@ -127,11 +141,11 @@ class BlaBlaArticleDashboardController extends AbstractController
                 ;
             } else {
                 $article
-                    ->setBody($contentProvider->getBody(($keyword) ? $keyword : new Keyword(), $article->getWords(), $articleLength))
+                    ->setBody($contentProvider->getBody($article, $article->getWords(), $articleLength))
                     ->setTitle($contentProvider->getTitle(($article->getTitle()) ? $article->getTitle() : '', ($keyword) ? $keyword : new Keyword()))
                 ;
             }
-            
+
             $em->persist($article);
             $em->flush();
             

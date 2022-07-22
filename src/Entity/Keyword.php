@@ -34,7 +34,7 @@ class Keyword
 
     public function getKeywordForm(int $num = 0): string
     {
-        if ( count($this->keyword) >= $num) {
+        if ( count($this->keyword) > $num) {
             
             return $this->keyword[$num];
         }

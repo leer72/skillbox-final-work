@@ -3,14 +3,13 @@
 namespace App\Service;
 
 use Faker\Factory;
+use Twig\Environment;
+use App\Entity\Article;
 use App\Entity\Keyword;
-use App\Twig\StringLoader;
 use Doctrine\Common\Collections\Collection;
 
 class ArticleContentProvider
 {
-    private $loader;
-
     /**
      * @var \Faker\Generator
      */
@@ -19,18 +18,28 @@ class ArticleContentProvider
     private static $placeholderParagraph = '{{ paragraph }}';
 
     private static $placeholderParagraphs = '{{ paragraphs }}';
+
+    private static $placeholderImages = '{{ imageSrc }}';
+
+    private $twig;
     
-    public function __construct(StringLoader $loader)
+    public function __construct(Environment $twig)
     {
-        $this->loader = $loader;
         $this->faker = Factory::create();
+        $this->twig = $twig;
     }
     
-    public function getBody(Keyword $keyword, Collection $words = null, int $modules = 3): string
+    public function getBody(Article $article, Collection $words = null, int $modules = 3): string
     {
         // Пока не реализован класс модулей - делаем их статичными
         $baseModules[] = <<<EOF
-        <h>{{ keyword }}</h>
+        <h>{{ keyword | morph(0) }}
+        {{ keyword | morph(1) }}
+        {{ keyword | morph(2) }}
+        {{ keyword | morph(3) }}
+        {{ keyword | morph(4) }}
+        {{ keyword | morph(5) }}
+        {{ keyword | morph(6) }}</h>
         <p>{{ paragraph }}</p> 
 
         EOF;
@@ -39,6 +48,7 @@ class ArticleContentProvider
 
         EOF;
         $baseModules[] = <<<EOF
+        <img src="{{ imageSrc }}" alt="изображение">
         <div class="row">
         <div class="col-sm-6">
             {{ paragraphs }}
@@ -65,6 +75,7 @@ class ArticleContentProvider
                 $modulesPool[] = $baseModules[rand(0, count($baseModules) - 1)];
             }
         } else {
+            
             return '';
         }
         
@@ -86,6 +97,42 @@ class ArticleContentProvider
             }
         }
 
+        // создаем пул изображений
+        $imagesNumberPool = [];
+        $imagesCount = substr_count($modulesAsText, self::$placeholderImages);
+        $images = $article->getImagesFilename();
+        // изображения не повторяются если их количество <= плейсхолдерам
+        if(count($images)) {
+            if($imagesCount > count($images)) {
+                $imagesNumberPool = array_keys($images);
+                for($i = 0; $i <= $imagesCount - count($images); $i++) {
+                    $imagesNumberPool[] = rand(0, count($images) - 1);
+                }
+            } elseif($imagesCount == count($images)) {
+                $imagesNumberPool = array_keys($images);
+            } else {
+                for($i = 0; $i <= $imagesCount; $i++) {
+                    $deletedPos = rand(0, count($images) - 1);
+                    if($deletedPos < 0) {
+                        $deletedPos = 0;
+                    }
+                    $imagesNumberPool[] = $deletedPos;
+                    array_splice($images, $deletedPos, 1);
+                } 
+            }
+        }
+        
+        // меняем плейсхолдер изображения
+        for($i = 0; $i < $imagesCount; $i++) {
+            $pos = strpos($modulesAsText, self::$placeholderImages);
+            $modulesAsText = substr_replace(
+                $modulesAsText, 
+                (count($images) > 0) ? '{{ article.ImageFilename(' . $imagesNumberPool[$i] . ") | imagine_filter('articles') }}" : '', 
+                $pos, 
+                strlen(self::$placeholderImages)
+            );
+        }
+        
         $paragraphCount = substr_count($modulesAsText, self::$placeholderParagraph);
         $paragraphsCount = substr_count($modulesAsText, self::$placeholderParagraphs);
 
@@ -128,15 +175,22 @@ class ArticleContentProvider
             );
         }
 
-        $twig = new \Twig\Environment($this->loader);
         
-        return (count($keyword->getKeyword())) ? $twig->render($modulesAsText, ['keyword' => $keyword,]) : $twig->render($modulesAsText);
+        return (
+            $article->getKeyword()) ? 
+            $this->twig->render($modulesAsText, [
+                'keyword' => $article->getKeyword(),
+                'article' => $article,
+                ]) : 
+            $this->twig->render($modulesAsText, [
+                'keyword' => (new Keyword)->setKeyword(''),
+                'article' => $article,
+            ])
+        ;
     }
 
     public function getTitle(string $title, Keyword $keyword): string
     {
-        $twig = new \Twig\Environment($this->loader);
-        
-        return (count($keyword->getKeyword())) ? $twig->render('<h1> ' . $title . ' </h1>', ['keyword' => $keyword,]) : $twig->render('<h1> ' . $title . ' </h1>');
+        return (count($keyword->getKeyword())) ? $this->twig->render('<h1> ' . $title . ' </h1>', ['keyword' => $keyword,]) : $this->twig->render('<h1> ' . $title . ' </h1>');
     }
 }

@@ -73,6 +73,11 @@ class Article
      */
     private $sizeTo;
 
+    /**
+     * @ORM\Column(type="array")
+     */
+    private $imagesFilename = [];
+
     public function __construct()
     {
         $this->words = new ArrayCollection();
@@ -194,5 +199,27 @@ class Article
         $this->sizeTo = $sizeTo;
 
         return $this;
+    }
+
+    public function setImageFilename(string $imageFilename)
+    {
+        if ($imageFilename && (count($this->imagesFilename) < 5)) {
+            $this->imagesFilename[] = $imageFilename;
+        }
+    }
+
+    public function getImagesFilename()
+    {
+        return $this->imagesFilename;
+    }
+
+    public function getImageFilename(int $num)
+    {
+        if(count($this->imagesFilename) > $num) {
+            
+            return $this->imagesFilename[$num];
+        }
+
+        return null;
     }
 }
