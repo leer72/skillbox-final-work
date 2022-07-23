@@ -26,7 +26,7 @@ class CityTheme implements ThemeInterface
     <div class="bui-grid__column-4">
     ';
 
-    private static $title = '{{ value }} - лучший город для путешествия';
+    private static $title = '<h1> {{ value }} - лучший город для путешествия </h1>';
 
     private Keyword $value;
 
@@ -55,7 +55,7 @@ class CityTheme implements ThemeInterface
         return $title;
     }
 
-    public function getSlug()
+    public function getSlug(): string
     {
         return self::$slug;
     }

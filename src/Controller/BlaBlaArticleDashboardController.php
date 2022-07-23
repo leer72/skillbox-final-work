@@ -6,10 +6,12 @@ use App\Entity\Article;
 use App\Entity\Keyword;
 use App\Entity\Word;
 use App\Form\ArticleFormType;
+use App\Repository\ArticleRepository;
 use App\Service\ArticleContentProvider;
 use App\Service\FileUploader;
 use App\Service\ThemeContentProvider;
 use Doctrine\ORM\EntityManagerInterface;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -30,17 +32,57 @@ class BlaBlaArticleDashboardController extends AbstractController
 
     /**
     * @IsGranted("ROLE_USER") 
-    * @Route("/dashboard/create/article", name="app_create_article")
+    * @Route("/dashboard/history", name="app_dashboard_history")
+    */
+    public function history(
+        PaginatorInterface $paginator, 
+        ArticleRepository $articleRepository,
+        Request $request
+    ) {
+        $pagination = $paginator->paginate(
+            $articleRepository->findAllByUser($this->getUser()),
+            $request->query->getInt('page', 1),
+            10
+        );
+        
+        return $this->render('dashboard/history.html.twig', [
+            'pagination' => $pagination,
+        ]);
+    }
+
+    /**
+    * @IsGranted("ROLE_USER") 
+    * @Route("/dashboard/article/{id}/detail", name="app_dashboard_article_detail")
+    */
+    public function articleDetail(
+        Article $article
+    ) {
+        return $this->render('dashboard/article_detail.html.twig', [
+            'article' => $article,
+        ]);
+    }
+
+    /**
+    * @IsGranted("ROLE_USER") 
+    * @Route("/dashboard/create/article/{id}", name="app_create_article")
      */
     public function createArticle(
         EntityManagerInterface $em, 
         Request $request,
         ArticleContentProvider $contentProvider,
         ThemeContentProvider $themeContentProvider,
-        FileUploader $articleFileUploader
+        FileUploader $articleFileUploader,
+        ArticleRepository $articleRepository,
+        int $id = 0
     )
     {
-        $article = new Article();
+        if($id) {
+            $article = $articleRepository->findOneBy(['id' => $id]);
+        } else {
+            $article = new Article();
+        }
+        
+        
         $form = $this->createForm(ArticleFormType::class, $article);
         
         $article = $this->handleFormRequest(
@@ -49,8 +91,21 @@ class BlaBlaArticleDashboardController extends AbstractController
             $request, 
             $contentProvider, 
             $themeContentProvider,
-            $articleFileUploader
+            $articleFileUploader,
+            $article
         );
+
+        if (! $form->isSubmitted()) {
+            if($article->getKeyword()) {
+                for($i = 0; $i < count($article->getKeyword()->getKeyword()); $i++) {
+                    $form->get('keyword_' . $i)->setData($article->getKeyword()->getKeyword()[$i]);
+                }
+            }
+
+            if($article->getTheme()) {
+                $form->get('theme')->setData($article->getTheme());
+            }
+        }
        
         $errors = $form->getErrors();
 
@@ -67,7 +122,8 @@ class BlaBlaArticleDashboardController extends AbstractController
         Request $request,
         ArticleContentProvider $contentProvider,
         ThemeContentProvider $themeContentProvider,
-        FileUploader $articleFileUploader
+        FileUploader $articleFileUploader,
+        Article $article
     ) {
         $form->handleRequest($request);
         
@@ -128,16 +184,19 @@ class BlaBlaArticleDashboardController extends AbstractController
                 $article->setSlug($slugger->slug(uniqid()));
             }
 
-            /** @var UploadedFile|null $image */
-            $images = $form->get('image')->getData();
-            foreach($images as $image) {
-                $article->setImageFilename($articleFileUploader->uploadFile($image));
+            if(! $article->getId()) {
+                /** @var UploadedFile|null $image */
+                $images = $form->get('image')->getData();
+                foreach($images as $image) {
+                    $article->setImageFilename($articleFileUploader->uploadFile($image));
+                }
             }
 
             if($theme) {
                 $article
                     ->setBody($theme->getParagraphs($keyword))
                     ->setTitle($theme->getTitle($keyword))
+                    ->setTheme($theme->getSlug())
                 ;
             } else {
                 $article
@@ -152,6 +211,6 @@ class BlaBlaArticleDashboardController extends AbstractController
             return $article;
         }
 
-        return null;
+        return $article;
     }
 }

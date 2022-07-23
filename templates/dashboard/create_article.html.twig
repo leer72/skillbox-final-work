@@ -13,6 +13,7 @@
                 {{ form_start(articleForm, {
                     attr: { class: 'form-signin' }
                 }) }}
+
                 <div class="form-group">
                     {{ form_label(articleForm.theme, 'Тематика', {
                         label_attr: { for: 'article_form_theme'}
@@ -148,14 +149,19 @@
                                             label_attr: { for: 'word_fields_count'}
                                         }) }}
                                     </div>
+                                </div>
                             </div>
                         {% endfor %}
 
-                    <a href="#" class="add-another-word" id="add-another-word">Еще слово</a>
+                        <a href="#" class="add-another-word" id="add-another-word">Добавить слово</a>
                     </div>
-                    
                 </div>
 
+                {% if article.ImagesFilename %}
+                    {% for image in article.ImagesFilename %}
+                        <img src="{{ image | imagine_filter('articles_preview') }}" alt="изображение">
+                    {% endfor %}
+                {% endif %}
                 <div class="form-group">
                     {{ form_label(articleForm.image, 'Изображения', {
                         label_attr: { for: 'article_form_image'}
@@ -164,7 +170,6 @@
                     attr: { placeholder: 'Изображения', class: 'form-control-file', multiple: true}
                     }) }}
                 </div>
-                    
                 <button class="btn btn-lg btn-primary btn-block text-uppercase" type="submit">Создать</button>
                 {{ form_end(articleForm) }}
 
