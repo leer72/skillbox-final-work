@@ -1,0 +1,42 @@
+{% extends 'dashboard/base.html.twig' %}
+{% block body %}
+
+  <div class="container-fluid">
+    <h1 class="mt-4">История статей</h1>
+    <div class="row">
+      
+      <div class="col-xl-8">
+
+        <table class="table table-hover table-bordered">
+          <thead class="thead-light">
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Название</th>
+              <th scope="col">Описание</th>
+              <th scope="col">Просмотр</th>
+            </tr>
+          </thead>
+          <tbody>
+              {% for article in pagination %}
+            <tr>
+              <th scope="row">{{ loop.index }}</th>
+              <td>{{ article.title | striptags }}</td>
+              <td>{{ article.body | slice(0, 150) | striptags }}</td>
+              <td><a href="{{ path('app_dashboard_article_detail', { id: article.id }) }}"><i class="fas fa-eye"></i></a> </td>
+            </tr>
+            {% else %}
+                <tr>
+                    <td colspan="4">Нет статей</td>
+                </tr>
+            {% endfor %}
+            
+          </tbody>
+        
+        </table>
+        {{ knp_pagination_render(pagination) }}
+        
+      </div>
+    </div>
+    
+  </div>
+{% endblock %}

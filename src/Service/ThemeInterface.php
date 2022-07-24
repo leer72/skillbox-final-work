@@ -10,7 +10,7 @@ interface ThemeInterface
 
     public function getTitle(Keyword $value);
 
-    public function getSlug();
+    public function getSlug(): string;
 
     public function getName();
 }

@@ -43,9 +43,10 @@ class CucumberTheme implements ThemeInterface
             </div>
         </div>
     </div>
+</div>
 </div>';
 
-    private static $title = 'Поговорим об огурцах сорта {{ value }}';
+    private static $title = '<h1> Поговорим об огурцах сорта {{ value }} </h1>';
 
     private Keyword $value;
 
@@ -74,7 +75,7 @@ class CucumberTheme implements ThemeInterface
         return $title;
     }
 
-    public function getSlug()
+    public function getSlug(): string
     {
         return self::$slug;
     }

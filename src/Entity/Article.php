@@ -78,6 +78,11 @@ class Article
      */
     private $imagesFilename = [];
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $theme;
+
     public function __construct()
     {
         $this->words = new ArrayCollection();
@@ -221,5 +226,17 @@ class Article
         }
 
         return null;
+    }
+
+    public function getTheme(): ?string
+    {
+        return $this->theme;
+    }
+
+    public function setTheme(?string $theme): self
+    {
+        $this->theme = $theme;
+
+        return $this;
     }
 }

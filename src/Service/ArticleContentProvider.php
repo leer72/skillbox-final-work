@@ -175,7 +175,6 @@ class ArticleContentProvider
             );
         }
 
-        
         return (
             $article->getKeyword()) ? 
             $this->twig->render($modulesAsText, [
@@ -191,6 +190,6 @@ class ArticleContentProvider
 
     public function getTitle(string $title, Keyword $keyword): string
     {
-        return (count($keyword->getKeyword())) ? $this->twig->render('<h1> ' . $title . ' </h1>', ['keyword' => $keyword,]) : $this->twig->render('<h1> ' . $title . ' </h1>');
+        return (count($keyword->getKeyword())) ? $this->twig->render($title, ['keyword' => $keyword,]) : $this->twig->render($title);
     }
 }

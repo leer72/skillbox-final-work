@@ -20,38 +20,38 @@
 
     <div class="bg-light border-right" id="sidebar-wrapper">
       <div class="sidebar-heading">BlaBlaArticle</div>
-      <div class="list-group list-group-flush">
-        <a href="{{ path('app_dashboard') }}"     class="list-group-item list-group-item-action {% if app.request.attributes.get('_route') == 'app_dashboard' %} active {% else %} bg-light {% endif %}">Рабочий стол</a>
-        <a href="{{ path('app_create_article') }}"     class="list-group-item list-group-item-action {% if app.request.attributes.get('_route') == 'app_create_article' %} active {% else %} bg-light {% endif %}">Создать статью</a>
-        <a href="{{ path('app_dashboard') }}"     class="list-group-item list-group-item-action bg-light">История статей</a>
-        <a href="{{ path('app_dashboard') }}"     class="list-group-item list-group-item-action bg-light">Подписка</a>
-        <a href="{{ path('app_dashboard') }}"     class="list-group-item list-group-item-action bg-light">Профиль</a>
-        <a href="{{ path('app_dashboard') }}"     class="list-group-item list-group-item-action bg-light">Модули генератора</a>
+        <div class="list-group list-group-flush">
+          <a href="{{ path('app_dashboard') }}"     class="list-group-item list-group-item-action {% if app.request.attributes.get('_route') == 'app_dashboard' %} active {% else %} bg-light {% endif %}">Рабочий стол</a>
+          <a href="{{ path('app_create_article') }}"     class="list-group-item list-group-item-action {% if app.request.attributes.get('_route') == 'app_create_article' %} active {% else %} bg-light {% endif %}">Создать статью</a>
+          <a href="{{ path('app_dashboard_history') }}"     class="list-group-item list-group-item-action {% if app.request.attributes.get('_route') == 'app_dashboard_history' %} active {% else %} bg-light {% endif %}">История статей</a>
+          <a href="{{ path('app_dashboard') }}"     class="list-group-item list-group-item-action bg-light">Подписка</a>
+          <a href="{{ path('app_dashboard') }}"     class="list-group-item list-group-item-action bg-light">Профиль</a>
+          <a href="{{ path('app_dashboard') }}"     class="list-group-item list-group-item-action bg-light">Модули генератора</a>
+        </div>
+      </div>
+
+      <div id="page-content-wrapper">
+
+        <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+          <button class="btn btn-primary" id="menu-toggle">Скрыть меню</button>
+
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Показать/Скрыть навигацию">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav ml-auto mt-2 mt-lg-0">
+              <li class="nav-item active">
+                <a class="nav-link" href="{{ path('app_logout') }}">Выйти</a>
+              </li>
+            </ul>
+          </div>
+        </nav>
+    
+        {% block body %}{% endblock %}
+      
       </div>
     </div>
-
-    <div id="page-content-wrapper">
-
-      <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
-        <button class="btn btn-primary" id="menu-toggle">Скрыть меню</button>
-
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Показать/Скрыть навигацию">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul class="navbar-nav ml-auto mt-2 mt-lg-0">
-            <li class="nav-item active">
-              <a class="nav-link" href="{{ path('app_logout') }}">Выйти</a>
-            </li>
-          </ul>
-        </div>
-      </nav>
-    
-    {% block body %}{% endblock %}
-      
-    </div>
-
   </div>
 
 {% block javascripts %}

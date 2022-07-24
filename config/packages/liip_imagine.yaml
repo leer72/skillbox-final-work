@@ -17,6 +17,10 @@ liip_imagine:
             quality: 90
             filters:
                 thumbnail: { size: [250, 250], mode: outbound }
+        articles_preview:
+            quality: 90
+            filters:
+                thumbnail: { size: [100, 100], mode: outbound }
     loaders:
         articles_flysystem_loader:
             flysystem:
