@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Subscription;
 use App\Entity\User;
 use App\Form\UserRegistrationFormType;
 use Doctrine\ORM\EntityManagerInterface;
@@ -49,9 +50,12 @@ class SecurityController extends AbstractController
             $userModel = $form->getData();
             $user = new User();
             
+            $subscription = (new Subscription())->setLevel(1);
+            
             $user
                 ->setEmail($userModel->email)
                 ->setFirstName($userModel->firstName)
+                ->addSubscription($subscription)
                 ->setPassword($passwordEncoder->encodePassword(
                     $user,
                     $userModel->plainPassword

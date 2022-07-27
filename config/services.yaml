@@ -15,6 +15,11 @@ services:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
 
+    _instanceof:
+        App\Service\BlaBlaArticleSubscriptionInterface:
+            tags:
+                - { name: 'skillbox_diploma_layout.subscription_provider' }
+
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
     App\:
@@ -38,3 +43,9 @@ services:
     App\Service\ThemeContentProvider:
         arguments:
             - !tagged_iterator skillbox_diploma_layout.theme_provider
+
+    
+    App\Service\BlaBlaArticleSubscriptionProvider:
+        arguments:
+            - !tagged_iterator skillbox_diploma_layout.subscription_provider
+

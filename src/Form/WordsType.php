@@ -16,9 +16,11 @@ class WordsType extends AbstractType
         $builder
             ->add('word', TextType::class, [
                 'label' => 'Продвигаемое слово',
+                'required' => false,
             ])
             ->add('count', NumberType::class, [
                 'label' => 'кол-во',
+                'required' => false,
             ])
         ;
     }

@@ -2,10 +2,11 @@
 
 namespace App\Repository;
 
-use App\Entity\Article;
+use DateTime;
 use App\Entity\User;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use App\Entity\Article;
 use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 
 /**
  * @method Article|null find($id, $lockMode = null, $lockVersion = null)
@@ -44,6 +45,18 @@ class ArticleRepository extends ServiceEntityRepository
             ->where('a.author = :user')
             ->setParameter('user', $user->getId())
             ->orderBy('a.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+
+    public function findByCreatedAt(DateTime $period, User $user)
+    {
+        return $this->createQueryBuilder('a')
+            ->where('a.author = :user')
+            ->setParameter('user', $user->getId())
+            ->andWhere('a.createdAt > :period')
+            ->setParameter('period', $period)
             ->getQuery()
             ->getResult()
         ;

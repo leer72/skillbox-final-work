@@ -5,8 +5,10 @@ namespace App\Form;
 use App\Entity\Article;
 use App\Service\ThemeContentProvider;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\FormBuilderInterface;
+use App\Service\BlaBlaArticleSubscriptionProvider;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -20,13 +22,21 @@ class ArticleFormType extends AbstractType
 
     private $contentProvider;
 
-    public function __construct(ThemeContentProvider $themeContentProvider)
+    private $subscriptionProvider;
+
+    private $security;
+
+    public function __construct(ThemeContentProvider $themeContentProvider, BlaBlaArticleSubscriptionProvider $subscriptionProvider, Security $security)
     {
         $this->contentProvider = $themeContentProvider;
+        $this->subscriptionProvider = $subscriptionProvider;
+        $this->security = $security;
     }
     
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        $avalibles = $this->subscriptionProvider->getSubscriptionByUser($this->security->getUser());
+        
         $themes = $this->contentProvider->getThemes();
 
         $article = $options['data'] ?? null;
@@ -69,15 +79,21 @@ class ArticleFormType extends AbstractType
                 'mapped' => false,
                 'required' => false,
                 'multiple' => true,
-                'disabled' => $cannotEdit,
+                'disabled' => $cannotEdit or ! $avalibles->getAvalibleImages(),
             ])
         ;
 
-        for($i = 0; $i <= self::$MAX_KEYWORD_SIZE; $i++) {
+        $builder->add('keyword_0', TextType::class, [
+            'mapped' => false,
+            'required'   => false,
+            'disabled' => $cannotEdit,
+        ]);
+        
+        for($i = 1; $i <= self::$MAX_KEYWORD_SIZE; $i++) {
             $builder->add('keyword_' . $i, TextType::class, [
                 'mapped' => false,
                 'required'   => false,
-                'disabled' => $cannotEdit,
+                'disabled' => $cannotEdit or ! $avalibles->getAvalibleKeywordMorphs(),
             ]);
         }
 

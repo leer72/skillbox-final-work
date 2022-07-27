@@ -4,12 +4,17 @@ namespace App\Controller;
 
 use App\Entity\Article;
 use App\Entity\Keyword;
+use App\Entity\Subscription;
 use App\Entity\Word;
 use App\Form\ArticleFormType;
 use App\Repository\ArticleRepository;
+use App\Repository\SubscriptionRepository;
 use App\Service\ArticleContentProvider;
+use App\Service\BlaBlaArticleSubscriptionProvider;
 use App\Service\FileUploader;
+use App\Service\Mailer;
 use App\Service\ThemeContentProvider;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\Form\FormInterface;
@@ -25,9 +30,44 @@ class BlaBlaArticleDashboardController extends AbstractController
     * @IsGranted("ROLE_USER") 
     * @Route("/dashboard", name="app_dashboard")
      */
-    public function homepage()
-    {
-        return $this->render('dashboard/dashboard.html.twig');
+    public function homepage(
+        ArticleRepository $articleRepository,
+        BlaBlaArticleSubscriptionProvider $subscriptionsProvider,
+        SubscriptionRepository $subscriptionRepository
+    ) {
+        
+        $allArticles = count($articleRepository->findAllByUser($this->getUser()));
+
+        $articlesPerMonth = count($articleRepository->findByCreatedAt(new DateTime('-1 month'), $this->getUser()));
+
+        $lastArticle = $articleRepository->findOneBy(['author' => $this->getUser()->getId()], ['createdAt' => 'DESC']);
+        
+        $subscription = $subscriptionsProvider->getSubscriptionByUser($this->getUser());
+
+        $subscriptionName = $subscription->getName();
+
+        $subscriptionsInDB = $subscriptionRepository->findBy(['user' => $this->getUser()->getId()], ['level' => 'DESC']);
+        
+        $subscriptionEnd = null;
+        
+        foreach($subscriptionsInDB as $subscriptionInDB) {
+            if($subscription->getLevel() == $subscriptionInDB->getLevel()) {
+                $subscriptionEnd = $subscriptionInDB->getCreatedAt()->add($subscription->getDuration());
+                break;
+            }
+        }
+        
+        if(new DateTime('+4 days') <= $subscriptionEnd) {
+            $subscriptionEnd = null;
+        }
+
+        return $this->render('dashboard/dashboard.html.twig', [
+            'allArticles' => $allArticles,
+            'articlesPerMonth' => $articlesPerMonth,
+            'subscriptionName' => $subscriptionName,
+            'subscriptionEnd' => $subscriptionEnd,
+            'lastArticle' => $lastArticle,
+        ]);
     }
 
     /**
@@ -64,6 +104,38 @@ class BlaBlaArticleDashboardController extends AbstractController
 
     /**
     * @IsGranted("ROLE_USER") 
+    * @Route("/dashboard/subscription/{level}", name="app_dashboard_subscription")
+    */
+    public function subscription(
+        BlaBlaArticleSubscriptionProvider $subscriptionsProvider,
+        EntityManagerInterface $em,
+        Mailer $mailer,
+        int $level = 1
+    ) {
+        $successMessage = null;
+        
+        if($level > 1) {
+            $newSubscription = (new Subscription())
+                ->setLevel($level)
+                ->setUser($this->getUser())
+            ;
+
+            $em->persist($newSubscription);
+            $em->flush();
+
+            $mailer->sendSubscriptionMail($this->getUser());
+
+            $successMessage = 'Подписка ' . $subscriptionsProvider->getSubscriptionByUser($this->getUser())->getName() . ' оформлена, до ' . (new DateTime('+1 week'))->format('d.m.Y');
+        }
+        
+        return $this->render('dashboard/subscription.html.twig', [
+            'currentLevel' => $subscriptionsProvider->getSubscriptionByUser($this->getUser())->getLevel(),
+            'successMessage' => $successMessage,
+        ]);
+    }
+
+    /**
+    * @IsGranted("ROLE_USER") 
     * @Route("/dashboard/create/article/{id}", name="app_create_article")
      */
     public function createArticle(
@@ -73,6 +145,7 @@ class BlaBlaArticleDashboardController extends AbstractController
         ThemeContentProvider $themeContentProvider,
         FileUploader $articleFileUploader,
         ArticleRepository $articleRepository,
+        BlaBlaArticleSubscriptionProvider $subscriptionsProvider,
         int $id = 0
     )
     {
@@ -80,39 +153,56 @@ class BlaBlaArticleDashboardController extends AbstractController
             $article = $articleRepository->findOneBy(['id' => $id]);
         } else {
             $article = new Article();
+            $word = new Word();
+            $article->addWord($word);
         }
         
+        $avalibles = $subscriptionsProvider->getSubscriptionByUser($this->getUser());
+
+        if($avalibles->getArticlePerHourLimit() <= 
+            count($articleRepository->findByCreatedAt(new DateTime('-1 hour'), $this->getUser()))
+            && $avalibles->getArticlePerHourLimit() > 0
+        ) {
+            $avalibleCreateArticle = false;
+        } else {
+            $avalibleCreateArticle = true;
+        }
         
+
         $form = $this->createForm(ArticleFormType::class, $article);
         
-        $article = $this->handleFormRequest(
-            $form, 
-            $em, 
-            $request, 
-            $contentProvider, 
-            $themeContentProvider,
-            $articleFileUploader,
-            $article
-        );
+        if($avalibleCreateArticle) {
+            $article = $this->handleFormRequest(
+                $form, 
+                $em, 
+                $request, 
+                $contentProvider, 
+                $themeContentProvider,
+                $articleFileUploader,
+                $article
+            );
 
-        if (! $form->isSubmitted()) {
-            if($article->getKeyword()) {
-                for($i = 0; $i < count($article->getKeyword()->getKeyword()); $i++) {
-                    $form->get('keyword_' . $i)->setData($article->getKeyword()->getKeyword()[$i]);
+            if (! $form->isSubmitted()) {
+                if($article->getKeyword()) {
+                    for($i = 0; $i < count($article->getKeyword()->getKeyword()); $i++) {
+                        $form->get('keyword_' . $i)->setData($article->getKeyword()->getKeyword()[$i]);
+                    }
+                }
+
+                if($article->getTheme()) {
+                    $form->get('theme')->setData($article->getTheme());
                 }
             }
-
-            if($article->getTheme()) {
-                $form->get('theme')->setData($article->getTheme());
-            }
         }
-       
+
         $errors = $form->getErrors();
 
         return $this->render('dashboard/create_article.html.twig', [
             'articleForm' => $form->createView(),
             'article' => $article,
             'errors' => $errors,
+            'avalibleCreateArticle' => $avalibleCreateArticle,
+            'avalibleWords' => $avalibles->getAvalibleWords(),
         ]);
     }
 
@@ -151,9 +241,13 @@ class BlaBlaArticleDashboardController extends AbstractController
             }
             
             foreach($article->getWords() as $word) {
+                if($word->getWord() == null || $word->getCount() == null) {
+                    $article->removeWord($word);
+                } else {
                 /** @var Word $word */
                 $word->setArticle($article);
                 $em->persist($word);
+                }
             }
             
             $article
