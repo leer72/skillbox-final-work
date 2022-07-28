@@ -4,6 +4,7 @@ namespace App\Service;
 
 use DateTime;
 use App\Entity\User;
+use App\Repository\ArticleRepository;
 use App\Repository\SubscriptionRepository;
 
 class BlaBlaArticleSubscriptionProvider
@@ -12,10 +13,13 @@ class BlaBlaArticleSubscriptionProvider
 
     private $subscriptionRepository;
 
-    public function __construct(iterable $subscriptions, SubscriptionRepository $subscriptionRepository)
+    private $articleRepository;
+
+    public function __construct(iterable $subscriptions, SubscriptionRepository $subscriptionRepository, ArticleRepository $articleRepository)
     {
         $this->subscriptions = $subscriptions;
         $this->subscriptionRepository = $subscriptionRepository;
+        $this->articleRepository = $articleRepository;
     }
 
     public function getSubscriptionByLevel(int $level)
@@ -53,5 +57,14 @@ class BlaBlaArticleSubscriptionProvider
     public function getSubscriptions()
     {
         return $this->subscriptions;
+    }
+
+    public function canUserCreateArticle(User $user)
+    {
+        $perHourLimit = $this->getSubscriptionByUser($user)->getArticlePerHourLimit();
+        
+        return ! ($perHourLimit <= 
+            ($this->articleRepository->findByCreatedAtCount(new DateTime('-1 hour'), $user))[0]['allPerPeriod']
+            && $perHourLimit > 0);
     }
 }

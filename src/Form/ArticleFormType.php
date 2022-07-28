@@ -79,7 +79,7 @@ class ArticleFormType extends AbstractType
                 'mapped' => false,
                 'required' => false,
                 'multiple' => true,
-                'disabled' => $cannotEdit or ! $avalibles->getAvalibleImages(),
+                'disabled' => $cannotEdit || ! $avalibles->getAvalibleImages(),
             ])
         ;
 
@@ -93,7 +93,7 @@ class ArticleFormType extends AbstractType
             $builder->add('keyword_' . $i, TextType::class, [
                 'mapped' => false,
                 'required'   => false,
-                'disabled' => $cannotEdit or ! $avalibles->getAvalibleKeywordMorphs(),
+                'disabled' => $cannotEdit || ! $avalibles->getAvalibleKeywordMorphs(),
             ]);
         }
 

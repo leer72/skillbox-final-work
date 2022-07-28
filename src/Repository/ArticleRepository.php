@@ -61,4 +61,28 @@ class ArticleRepository extends ServiceEntityRepository
             ->getResult()
         ;
     }
+
+    public function findAllByUserCount(User $user)
+    {
+        return $this->createQueryBuilder('a')
+            ->select('count(a.id) as allArticles')
+            ->where('a.author = :user')
+            ->setParameter('user', $user->getId())
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+
+    public function findByCreatedAtCount(DateTime $period, User $user)
+    {
+        return $this->createQueryBuilder('a')
+            ->select('count(a.id) as allPerPeriod')    
+            ->where('a.author = :user')
+            ->setParameter('user', $user->getId())
+            ->andWhere('a.createdAt > :period')
+            ->setParameter('period', $period)
+            ->getQuery()
+            ->getResult()
+        ;
+    }
 }

@@ -35,11 +35,10 @@ class BlaBlaArticleDashboardController extends AbstractController
         BlaBlaArticleSubscriptionProvider $subscriptionsProvider,
         SubscriptionRepository $subscriptionRepository
     ) {
+        $allArticles = $articleRepository->findAllByUserCount($this->getUser());
         
-        $allArticles = count($articleRepository->findAllByUser($this->getUser()));
-
-        $articlesPerMonth = count($articleRepository->findByCreatedAt(new DateTime('-1 month'), $this->getUser()));
-
+        $articlesPerMonth = $articleRepository->findByCreatedAtCount(new DateTime('-1 month'), $this->getUser());
+        
         $lastArticle = $articleRepository->findOneBy(['author' => $this->getUser()->getId()], ['createdAt' => 'DESC']);
         
         $subscription = $subscriptionsProvider->getSubscriptionByUser($this->getUser());
@@ -62,8 +61,8 @@ class BlaBlaArticleDashboardController extends AbstractController
         }
 
         return $this->render('dashboard/dashboard.html.twig', [
-            'allArticles' => $allArticles,
-            'articlesPerMonth' => $articlesPerMonth,
+            'allArticles' => $allArticles[0]['allArticles'],
+            'articlesPerMonth' => $articlesPerMonth[0]['allPerPeriod'],
             'subscriptionName' => $subscriptionName,
             'subscriptionEnd' => $subscriptionEnd,
             'lastArticle' => $lastArticle,
@@ -157,17 +156,9 @@ class BlaBlaArticleDashboardController extends AbstractController
             $article->addWord($word);
         }
         
-        $avalibles = $subscriptionsProvider->getSubscriptionByUser($this->getUser());
+        $avalibleWords = $subscriptionsProvider->getSubscriptionByUser($this->getUser())->getAvalibleWords();
 
-        if($avalibles->getArticlePerHourLimit() <= 
-            count($articleRepository->findByCreatedAt(new DateTime('-1 hour'), $this->getUser()))
-            && $avalibles->getArticlePerHourLimit() > 0
-        ) {
-            $avalibleCreateArticle = false;
-        } else {
-            $avalibleCreateArticle = true;
-        }
-        
+        $avalibleCreateArticle = $subscriptionsProvider->canUserCreateArticle($this->getUser());
 
         $form = $this->createForm(ArticleFormType::class, $article);
         
@@ -202,7 +193,7 @@ class BlaBlaArticleDashboardController extends AbstractController
             'article' => $article,
             'errors' => $errors,
             'avalibleCreateArticle' => $avalibleCreateArticle,
-            'avalibleWords' => $avalibles->getAvalibleWords(),
+            'avalibleWords' => $avalibleWords,
         ]);
     }
 
