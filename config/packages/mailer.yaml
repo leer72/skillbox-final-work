@@ -1,0 +1,7 @@
+framework:
+    mailer:
+        dsn: '%env(MAILER_DSN)%'
+        envelope:
+            sender: 'noreply@blablaarticle.skillbox'
+        headers:
+            from: 'BlaBlaArticle - Лучший генератор статей <noreply@blablaarticle.skillbox>'

@@ -6,9 +6,11 @@
         <div class="row">
           
             <div class="col-xl-6">
+                {% if not avalibleCreateArticle %}
                 <div class="alert alert-danger" role="alert">
-                Превышен лимит создания статей, чтобы снять лимит <a href="#">Улучшите подписку</a>
+                Превышен лимит создания статей, чтобы снять лимит <a href="{{ path('app_dashboard_subscription') }}">Улучшите подписку</a>
                 </div>
+                {% endif %}
 
                 {{ form_start(articleForm, {
                     attr: { class: 'form-signin' }
@@ -125,7 +127,7 @@
                 </div>
                 
                 <div class="card mb-4">
-                    <div class="card-body words-fields-list"  id="words-fields-list" data-prototype='<div class="row" id="article_form_words___name__"><div class="col"><div class="form-label-group"><input type="text" class="form-control" id="article_form_words___name___word" name="article_form[words][__name__][word]" required="required" placeholder="Продвигаемое слово" /><label for="article_form_words___name___word" class="required">Продвигаемое слово</label></div></div><div class="col"><div class="form-label-group"><input type="text" class="form-control" id="article_form_words___name___count" name="article_form[words][__name__][count]" required="required" placeholder="кол-во" /><label for="article_form_words___name___count" class="required">кол-во</label></div></div></div>' data-index="{{ articleForm.words|length }}">
+                    <div class="card-body words-fields-list"  id="words-fields-list" data-prototype='<div class="row" id="article_form_words___name__"><div class="col"><div class="form-label-group"><input type="text" class="form-control" id="article_form_words___name___word" name="article_form[words][__name__][word]" placeholder="Продвигаемое слово" /><label for="article_form_words___name___word" class="required">Продвигаемое слово</label></div></div><div class="col"><div class="form-label-group"><input type="text" class="form-control" id="article_form_words___name___count" name="article_form[words][__name__][count]" placeholder="кол-во" /><label for="article_form_words___name___count" class="required">кол-во</label></div></div></div>' data-index="{{ articleForm.words|length }}">
                         <p class="card-title">Продвигаемые слова</p>
                         {% for wordsFields in articleForm.words %}
                             <div class="row" id="article_form_words_0">
@@ -153,7 +155,9 @@
                             </div>
                         {% endfor %}
 
+                        {% if avalibleWords %}
                         <a href="#" class="add-another-word" id="add-another-word">Добавить слово</a>
+                        {% endif %}
                     </div>
                 </div>
 
@@ -170,7 +174,7 @@
                     attr: { placeholder: 'Изображения', class: 'form-control-file', multiple: true}
                     }) }}
                 </div>
-                <button class="btn btn-lg btn-primary btn-block text-uppercase" type="submit">Создать</button>
+                <button class="btn btn-lg btn-primary btn-block text-uppercase" type="submit" {% if not avalibleCreateArticle %} disabled {% endif %}>Создать</button>
                 {{ form_end(articleForm) }}
 
             </div>
@@ -186,13 +190,13 @@
 
             <div class="col-xl-6">
 
-                {% if article is not null %}
+                {% if article.title is not null %}
                     {{ article.title | raw }}
                 {% else %}
                     <h1 class="mt-4">Тестовая статья</h1>
                 {% endif %}
                 
-                {% if article is not null%}
+                {% if article.body is not null %}
                     {{ article.body | raw }}
                 {% else %}
                     <div class="media">

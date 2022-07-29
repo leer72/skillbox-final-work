@@ -6,7 +6,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   {% endblock %}
-
+  <link rel="icon" type="image/ico" sizes="16x16" href="{{ asset('/img/favicon.ico') }}">
   <title>{% block title %}BlaBlaArticle - Лучший генератор статей{% endblock %}</title>
 
   {% block stylesheets %}
@@ -24,7 +24,7 @@
           <a href="{{ path('app_dashboard') }}"     class="list-group-item list-group-item-action {% if app.request.attributes.get('_route') == 'app_dashboard' %} active {% else %} bg-light {% endif %}">Рабочий стол</a>
           <a href="{{ path('app_create_article') }}"     class="list-group-item list-group-item-action {% if app.request.attributes.get('_route') == 'app_create_article' %} active {% else %} bg-light {% endif %}">Создать статью</a>
           <a href="{{ path('app_dashboard_history') }}"     class="list-group-item list-group-item-action {% if app.request.attributes.get('_route') == 'app_dashboard_history' %} active {% else %} bg-light {% endif %}">История статей</a>
-          <a href="{{ path('app_dashboard') }}"     class="list-group-item list-group-item-action bg-light">Подписка</a>
+          <a href="{{ path('app_dashboard_subscription') }}"     class="list-group-item list-group-item-action {% if app.request.attributes.get('_route') == 'app_dashboard_subscription' %} active {% else %} bg-light {% endif %}">Подписка</a>
           <a href="{{ path('app_dashboard') }}"     class="list-group-item list-group-item-action bg-light">Профиль</a>
           <a href="{{ path('app_dashboard') }}"     class="list-group-item list-group-item-action bg-light">Модули генератора</a>
         </div>

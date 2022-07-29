@@ -1,0 +1,93 @@
+{% extends 'dashboard/base.html.twig' %}
+{% block body %}
+
+<div class="container-fluid">
+  <h1 class="mt-4">Подписка</h1>
+  <div class="row">
+    
+    <div class="col-xl-8">
+    {% if successMessage is not null %}
+      <div class="alert alert-success" role="alert">
+        {{ successMessage }}
+      </div>
+    {% endif %}
+      <section class="pricing py-2 row">
+        <div class="container">
+          <div class="row">
+            <div class="col-lg-4">
+              <div class="card mb-5 mb-lg-0">
+                <div class="card-body">
+                  {% if currentLevel == 1 %}
+                  <h5 class="card-title text-uppercase text-center current text-warning"><i class="fas fa-check"></i>Free</h5>
+                  {% else %}
+                  <h5 class="card-title text-uppercase text-center text-muted"></i>Free</h5>
+                  {% endif %}
+                  <h6 class="card-price text-center">$0<span class="period">/неделя</span></h6>
+                  <hr>
+                  <ul class="fa-ul">
+                    <li><span class="fa-li"><i class="fas fa-check"></i></span>Возможность создать более 1 статьи</li>
+                    <li><span class="fa-li"><i class="fas fa-check"></i></span>Базовые возможности генератора</li>
+                    <li class="text-muted"><span class="fa-li"><i class="fas fa-times"></i></span>Продвинутые возможности генератора</li>
+                    <li class="text-muted"><span class="fa-li"><i class="fas fa-times"></i></span>Свои модули</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <div class="card mb-5 mb-lg-0">
+                <div class="card-body">
+                  {% if currentLevel == 2 %}
+                  <h5 class="card-title text-uppercase text-center current text-warning"><i class="fas fa-check"></i>Plus</h5>
+                  {% else %}
+                  <h5 class="card-title text-uppercase text-center text-muted"></i>Plus</h5>
+                  {% endif %}
+
+                  <h6 class="card-price text-center">$9<span class="period">/неделя</span></h6>
+                  <hr>
+                  <ul class="fa-ul">
+                    <li><span class="fa-li"><i class="fas fa-check"></i></span>Возможность создать более 1 статьи</li>
+                    <li><span class="fa-li"><i class="fas fa-check"></i></span>Базовые возможности генератора</li>
+                    <li><span class="fa-li"><i class="fas fa-check"></i></span>Продвинутые возможности генератора</li>
+                    <li class="text-muted"><span class="fa-li"><i class="fas fa-times"></i></span>Свои модули</li>
+                  </ul>
+                    
+                  {% if currentLevel == 2 %}
+                  <a href="#" class="btn btn-block btn-secondary text-uppercase" disabled>Текущий уровень</a>
+                  {% elseif currentLevel < 2 %}
+                  <a href="{{ path('app_dashboard_subscription', { level: 2 }) }}" class="btn btn-block btn-primary text-uppercase" >Оформить</a>
+                  {% endif %}
+
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <div class="card">
+                <div class="card-body">
+                  {% if currentLevel == 3 %}
+                  <h5 class="card-title text-uppercase text-center current text-warning"><i class="fas fa-check"></i>Pro</h5>
+                  {% else %}
+                  <h5 class="card-title text-uppercase text-center text-muted"></i>Pro</h5>
+                  {% endif %}
+                  <h6 class="card-price text-center">$49<span class="period">/неделя</span></h6>
+                  <hr>
+                  <ul class="fa-ul">
+                    <li><span class="fa-li"><i class="fas fa-check"></i></span><strong>Безлимитная генерация статей для вашего аккаунта</strong></li>
+                    <li><span class="fa-li"><i class="fas fa-check"></i></span>Базовые возможности генератора</li>
+                    <li><span class="fa-li"><i class="fas fa-check"></i></span>Продвинутые возможности генератора</li>
+                    <li><span class="fa-li"><i class="fas fa-check"></i></span>Свои модули</li>
+                  </ul>
+                  {% if currentLevel == 3 %}
+                  <a href="#" class="btn btn-block btn-secondary text-uppercase" disabled>Текущий уровень</a>
+                  {% elseif currentLevel < 3 %}
+                  <a href="{{ path('app_dashboard_subscription', { level: 3 }) }}" class="btn btn-block btn-primary text-uppercase" >Оформить</a>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+        
+{% endblock %}
