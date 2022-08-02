@@ -1,0 +1,71 @@
+{% extends 'dashboard/base.html.twig' %}
+{% block body %}
+
+    <div class="container-fluid">
+    <h1 class="mt-4">Профиль</h1>
+    <div class="row">
+        
+        <div class="col-xl-6">
+        
+        {% if success %}
+        <div class="alert alert-success" role="alert">
+            Профиль успешно изменен
+        </div>
+        {% endif %}
+
+        {% if changeEmail %}
+        <div class="alert alert-success" role="alert">
+            Email изменен. Письмо с подтверждением отправлено на указанный адрес.
+        </div>
+        {% endif %}
+
+        <div class="card my-4">
+            <div class="card-body" data-id="apiTokenBlock">
+
+            <div data-id="apiToken"><p>Ваш API токен: {{ apiToken }}</p></div>
+            <button class="btn btn-outline-primary" data-id="apiTokenButton" data-href="{{ path('app_dashboard_api_token') }}">Создать новый</button>
+            </div>
+        </div>
+        
+        {{ form_start(userForm) }}
+
+            <div class="form-label-group">
+                {{ form_widget(userForm.firstName, {
+                    attr: { placeholder: 'Ваше имя', class: 'form-control'}
+                }) }}
+                {{ form_label(userForm.firstName, 'Ваше имя', {
+                    label_attr: { for: 'user_form_firstName'}
+                }) }}
+            </div>
+            <div class="form-label-group">
+                {{ form_widget(userForm.email, {
+                    attr: { placeholder: 'Ваш email', class: 'form-control'}
+                }) }}
+                {{ form_label(userForm.email, 'Ваш email', {
+                    label_attr: { for: 'user_form_email'}
+                }) }}
+            </div>
+
+            <div class="form-label-group">
+                {{ form_widget(userForm.plainPassword.first, {
+                    attr: { placeholder: 'Пароль', class: 'form-control'}
+                }) }}
+                {{ form_label(userForm.plainPassword.first, 'Пароль', {
+                        label_attr: { for: 'user_form_plainPassword_first'}
+                }) }}
+            </div>
+
+            <div class="form-label-group">
+                {{ form_widget(userForm.plainPassword.second, {
+                    attr: { placeholder: 'Подтверждение пароля', class: 'form-control'}
+                }) }}
+                {{ form_label(userForm.plainPassword.second, 'Подтверждение пароля', {
+                        label_attr: { for: 'user_form_plainPassword_second'}
+                }) }}
+            </div>
+
+            <button class="btn btn-lg btn-primary btn-block text-uppercase" type="submit">Изменить</button>
+        {{ form_end(userForm) }}
+        </div>
+    </div>
+{% endblock %}

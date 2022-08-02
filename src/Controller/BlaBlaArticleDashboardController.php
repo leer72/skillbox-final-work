@@ -2,27 +2,30 @@
 
 namespace App\Controller;
 
+use DateTime;
+use App\Entity\Word;
 use App\Entity\Article;
 use App\Entity\Keyword;
-use App\Entity\Subscription;
-use App\Entity\Word;
-use App\Form\ArticleFormType;
-use App\Repository\ArticleRepository;
-use App\Repository\SubscriptionRepository;
-use App\Service\ArticleContentProvider;
-use App\Service\BlaBlaArticleSubscriptionProvider;
-use App\Service\FileUploader;
 use App\Service\Mailer;
+use App\Entity\Subscription;
+use App\Form\ArticleFormType;
+use App\Form\ProfileFormType;
+use App\Service\FileUploader;
+use App\Repository\ArticleRepository;
 use App\Service\ThemeContentProvider;
-use DateTime;
+use App\Service\ArticleContentProvider;
 use Doctrine\ORM\EntityManagerInterface;
-use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\Form\FormInterface;
+use App\Repository\SubscriptionRepository;
+use App\Repository\UserRepository;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Service\BlaBlaArticleSubscriptionProvider;
+use Symfony\Component\String\Slugger\AsciiSlugger;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\String\Slugger\AsciiSlugger;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class BlaBlaArticleDashboardController extends AbstractController
 {
@@ -194,6 +197,64 @@ class BlaBlaArticleDashboardController extends AbstractController
             'errors' => $errors,
             'avalibleCreateArticle' => $avalibleCreateArticle,
             'avalibleWords' => $avalibleWords,
+        ]);
+    }
+
+    /**
+    * @IsGranted("ROLE_USER") 
+    * @Route("/dashboard/profile", name="app_dashboard_profile")
+     */
+    public function profile(
+        EntityManagerInterface $em, 
+        Request $request, 
+        UserPasswordEncoderInterface $passwordEncoder, 
+        Mailer $mailer,
+        UserRepository $userRepository
+    ) {
+        $form = $this->createForm(ProfileFormType::class, $this->getUser());
+        $form->handleRequest($request);
+
+        $success = false;
+        $changeEmail = false;
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            /** @var User $user */
+            $user = $form->getData();
+
+            if($password = $form->get('plainPassword')->getData()) {
+                $user
+                    ->setPassword($passwordEncoder->encodePassword(
+                        $user,
+                        $password
+                    ))
+                ;
+            }
+
+            if(($form->get('email')->getData() !== $user->getEmail()) && $form->get('email')->getData() != null) {
+                $isExist = $userRepository->getCountUserByEmail($form->get('email')->getData());
+                
+                if(0 === $isExist[0]['users']) {
+                    $user->setNewEmail($form->get('email')->getData());
+                    $user->setEmailToken(sha1(uniqid('token')));
+                    $mailer->sendChangeEmail($user);
+
+                    $changeEmail = true;
+                }
+            }
+
+            $em->persist($user);
+            $em->flush();
+
+            $success = true;
+        } elseif(! $form->isSubmitted()) {
+            $form->get('email')->setData($this->getUser()->getEmail());
+        }
+        
+        return $this->render('dashboard/profile.html.twig', [
+            'userForm' => $form->createView(),
+            'apiToken' => $this->getUser()->getApiToken()->getToken(),
+            'success' => $success,
+            'changeEmail' => $changeEmail,
         ]);
     }
 

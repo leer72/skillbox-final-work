@@ -17,4 +17,4 @@ require ('./js/dashboard');
 
 require ('./js/scripts');
 require('./js/bootstrap_file_field');
-
+require('./js/apiToken');
