@@ -3,6 +3,7 @@
 namespace App\DataFixtures;
 
 use App\Entity\User;
+use App\Entity\ApiToken;
 use Doctrine\Persistence\ObjectManager;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
@@ -24,6 +25,7 @@ class UserFixtures extends BaseFixtures
                 ->setPassword($this->passwordEncoder->encodePassword($user, '123456'))
                 ->setRoles(['ROLE_ADMIN']);
             ;
+            $manager->persist(new ApiToken($user));
         });
         $this->create(User::class, function (User $user) use ($manager) {
             $user
@@ -38,6 +40,7 @@ class UserFixtures extends BaseFixtures
                 ->setEmail($this->faker->email)
                 ->setPassword($this->passwordEncoder->encodePassword($user, '123456'));
             ;
+            $manager->persist(new ApiToken($user));
         });
 
         $manager->flush();
