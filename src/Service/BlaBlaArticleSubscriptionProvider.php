@@ -67,4 +67,9 @@ class BlaBlaArticleSubscriptionProvider
             ($this->articleRepository->findByCreatedAtCount(new DateTime('-1 hour'), $user))[0]['allPerPeriod']
             && $perHourLimit > 0);
     }
+
+    public function canUserCreateModules(User $user)
+    {
+        return $this->getSubscriptionByUser($user)->getAvalibleModules();
+    }
 }

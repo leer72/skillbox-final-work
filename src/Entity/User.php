@@ -67,11 +67,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     private $emailToken;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Module::class, mappedBy="author", orphanRemoval=true)
+     */
+    private $modules;
+
     public function __construct()
     {
         $this->articles = new ArrayCollection();
         $this->subscriptions = new ArrayCollection();
         $this->apiTokens = new ArrayCollection();
+        $this->modules = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -272,6 +278,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setEmailToken(?string $emailToken): self
     {
         $this->emailToken = $emailToken;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Module>
+     */
+    public function getModules(): Collection
+    {
+        return $this->modules;
+    }
+
+    public function addModule(Module $module): self
+    {
+        if (!$this->modules->contains($module)) {
+            $this->modules[] = $module;
+            $module->setAuthor($this);
+        }
+
+        return $this;
+    }
+
+    public function removeModule(Module $module): self
+    {
+        if ($this->modules->removeElement($module)) {
+            // set the owning side to null (unless already changed)
+            if ($module->getAuthor() === $this) {
+                $module->setAuthor(null);
+            }
+        }
 
         return $this;
     }

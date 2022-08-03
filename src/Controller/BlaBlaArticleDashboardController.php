@@ -6,12 +6,15 @@ use DateTime;
 use App\Entity\Word;
 use App\Entity\Article;
 use App\Entity\Keyword;
+use App\Entity\Module;
 use App\Service\Mailer;
 use App\Entity\Subscription;
 use App\Form\ArticleFormType;
+use App\Form\ModuleFormType;
 use App\Form\ProfileFormType;
 use App\Service\FileUploader;
 use App\Repository\ArticleRepository;
+use App\Repository\ModuleRepository;
 use App\Service\ThemeContentProvider;
 use App\Service\ArticleContentProvider;
 use Doctrine\ORM\EntityManagerInterface;
@@ -256,6 +259,71 @@ class BlaBlaArticleDashboardController extends AbstractController
             'success' => $success,
             'changeEmail' => $changeEmail,
         ]);
+    }
+
+    /**
+    * @IsGranted("ROLE_USER") 
+    * @Route("/dashboard/modules", name="app_dashboard_modules")
+     */
+    public function modules(
+        Request $request, 
+        EntityManagerInterface $em, 
+        ModuleRepository $moduleRepository, 
+        PaginatorInterface $paginator,
+        BlaBlaArticleSubscriptionProvider $subscriptionProvider
+    ) {
+        if(! $subscriptionProvider->canUserCreateModules($this->getUser())) {
+            
+            return $this->redirectToRoute('app_dashboard_subscription');
+        }
+        
+        $form = $this->createForm(ModuleFormType::class, new Module());
+        $form->handleRequest($request);
+
+        $success = false;
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            /** @var Module $module */
+            $module = $form->getData();
+            $em->persist($module);
+            
+            $user = $this->getUser();
+            $user->addModule($module);
+
+            $em->persist($user);
+            $em->flush();
+
+            $success = true;
+        }
+
+        $pagination = $paginator->paginate(
+            $moduleRepository->findBy(['author' => $this->getUser()->getId()]),
+            $request->query->getInt('page', 1),
+            10
+        );
+        
+        return $this->render('dashboard/modules.html.twig', [
+            'moduleForm' => $form->createView(),
+            'pagination' => $pagination,
+            'success' => $success,
+        ]);
+    }
+
+    /**
+    * @IsGranted("ROLE_USER") 
+    * @Route("/dashboard/module/remove/{id}", name="app_dashboard_module_remove")
+     */
+    public function moduleRemove(
+        EntityManagerInterface $em, 
+        Module $module
+    ) {
+        $user = $this->getUser();
+        $user->removeModule($module);
+
+        $em->persist($user);
+        $em->flush();
+
+        return $this->redirectToRoute('app_dashboard_modules');
     }
 
     public function handleFormRequest(
