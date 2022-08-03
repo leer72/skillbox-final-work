@@ -71,7 +71,7 @@ class BlaBlaArticleController extends AbstractController
             }
 
             $article
-                ->setBody($contentProvider->getBody($keyword))
+                ->setBody($contentProvider->getBody($article))
                 ->setTitle($contentProvider->getTitle($article->getTitle(), $keyword))
                 ->setAuthor($userRepository->findOneBy(['email' => 'non_auth_user@blablaarticle.ru']))
             ;

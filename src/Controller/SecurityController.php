@@ -2,8 +2,9 @@
 
 namespace App\Controller;
 
-use App\Entity\Subscription;
 use App\Entity\User;
+use App\Entity\ApiToken;
+use App\Entity\Subscription;
 use App\Form\UserRegistrationFormType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -60,6 +61,8 @@ class SecurityController extends AbstractController
                     $user,
                     $userModel->plainPassword
             ));
+
+            $em->persist(new ApiToken($user));
 
             $em->persist($user);
             $em->flush();
