@@ -1,0 +1,78 @@
+{% extends 'dashboard/base.html.twig' %}
+{% block body %}
+
+<div class="container-fluid">
+  <section>
+  
+    <h1 class="mt-4">Ваши модули</h1>
+
+    {% if success %}
+      <div class="alert alert-success" role="alert">
+        Модуль успешно добавлен
+      </div>
+    {% endif %}
+
+    <table class="table table-hover table-bordered">
+      <thead class="thead-light">
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Модуль</th>
+        <th scope="col">Контент</th>
+        <th scope="col">Удалить</th>
+      </tr>
+      </thead>
+      <tbody>
+      {% for module in pagination %}
+      <tr>
+        <th scope="row">{{ loop.index }}</th>
+        <td>{{ module.name}}</td>
+        <td>{{ module.code }}</td>
+          <td><a href="{{ path('app_dashboard_module_remove', { id: module.id }) }}" class="text-danger"><i class="fas fa-trash"></i></a> </td>
+      </tr>
+      {% else %}
+          <tr>
+              <td colspan="4">Нет модулей</td>
+          </tr>
+      {% endfor %}
+    
+      </tbody>
+    </table>
+
+    {{ knp_pagination_render(pagination) }}
+  </section>
+
+  <hr>
+
+  <section class="py-4">
+  
+    <h1 class="mt-4">Добавить модуль</h1>
+    
+    <div class="row">
+
+      <div class="col-xl-6">
+      {{ form_start(moduleForm) }}
+
+      <div class="form-group">
+          {{ form_label(moduleForm.name, 'Название модуля', {
+              label_attr: { for: 'module_form_name'}
+          }) }}
+          {{ form_widget(moduleForm.name, {
+              attr: { placeholder: 'Название модуля', class: 'form-control'}
+          }) }}
+      </div>
+      <div class="form-group">
+          {{ form_label(moduleForm.code, 'Код модуля', {
+              label_attr: { for: 'module_form_code'}
+          }) }}
+          {{ form_widget(moduleForm.code, {
+              attr: { placeholder: 'Код модуля', class: 'form-control'}
+          }) }}
+      </div>
+
+      <button class="btn btn-lg btn-primary btn-block text-uppercase" type="submit">Добавить</button>
+      {{ form_end(moduleForm) }}
+
+      </div>
+    </div>
+  </section>
+{% endblock %}

@@ -26,7 +26,7 @@
           <a href="{{ path('app_dashboard_history') }}"     class="list-group-item list-group-item-action {% if app.request.attributes.get('_route') == 'app_dashboard_history' %} active {% else %} bg-light {% endif %}">История статей</a>
           <a href="{{ path('app_dashboard_subscription') }}"     class="list-group-item list-group-item-action {% if app.request.attributes.get('_route') == 'app_dashboard_subscription' %} active {% else %} bg-light {% endif %}">Подписка</a>
           <a href="{{ path('app_dashboard_profile') }}"     class="list-group-item list-group-item-action {% if app.request.attributes.get('_route') == 'app_dashboard_profile' %} active {% else %} bg-light {% endif %}">Профиль</a>
-          <a href="{{ path('app_dashboard') }}"     class="list-group-item list-group-item-action bg-light">Модули генератора</a>
+          <a href="{{ path('app_dashboard_modules') }}"     class="list-group-item list-group-item-action {% if app.request.attributes.get('_route') == 'app_dashboard_modules' %} active {% else %} bg-light {% endif %}">Модули генератора</a>
         </div>
       </div>
 
