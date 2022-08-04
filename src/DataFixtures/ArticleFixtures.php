@@ -41,12 +41,13 @@ class ArticleFixtures extends BaseFixtures implements DependentFixtureInterface
 
             $sizeFrom = $sizeTo = rand(1, 5);
             $title = $this->contentProvider->getTitle('Покупайте наш {{ keyword }}', $keyword);
-            $content = $this->contentProvider->getBody($article, $words, $sizeFrom);
+            $user = $this->getRandomReference(User::class);
+            $content = $this->contentProvider->getBody($article, $user, $words, $sizeFrom);
 
             $article
                 ->setTitle($title)
                 ->setBody($content)
-                ->setAuthor($this->getRandomReference(User::class))
+                ->setAuthor($user)
                 ->setSlug($this->faker->slug())
                 ->setSizeFrom($sizeFrom)
                 ->getSizeTo($sizeTo)

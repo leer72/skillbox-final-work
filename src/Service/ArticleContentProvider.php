@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use Faker\Factory;
+use App\Entity\User;
 use Twig\Environment;
 use App\Entity\Article;
 use App\Entity\Keyword;
@@ -29,7 +30,7 @@ class ArticleContentProvider
         $this->twig = $twig;
     }
     
-    public function getBody(Article $article, Collection $words = null, int $modules = 3): string
+    public function getBody(Article $article, User $user = null, Collection $words = null, int $modules = 3): string
     {
         // Пока не реализован класс модулей - делаем их статичными
         $baseModules[] = <<<EOF
@@ -71,8 +72,20 @@ class ArticleContentProvider
         $modulesPool = []; //Соберем сюда пул модулей для генерации статьи 
 
         if ($modules > 0) {
-            for ($i = 1; $i <= $modules; $i++) {
-                $modulesPool[] = $baseModules[rand(0, count($baseModules) - 1)];
+            if($user) {
+                $userModules = $user->getModules()->toArray();
+            } else {
+                $userModules = [];
+            }
+            
+            if(count($userModules)) {
+                for ($i = 1; $i <= $modules; $i++) {
+                    $modulesPool[] = $userModules[array_rand($userModules)]->getCode();
+                }
+            } else {
+                for ($i = 1; $i <= $modules; $i++) {
+                    $modulesPool[] = $baseModules[array_rand($baseModules)];
+                }
             }
         } else {
             
@@ -106,16 +119,13 @@ class ArticleContentProvider
             if($imagesCount > count($images)) {
                 $imagesNumberPool = array_keys($images);
                 for($i = 0; $i <= $imagesCount - count($images); $i++) {
-                    $imagesNumberPool[] = rand(0, count($images) - 1);
+                    $imagesNumberPool[] = array_rand($images);
                 }
             } elseif($imagesCount == count($images)) {
                 $imagesNumberPool = array_keys($images);
             } else {
                 for($i = 0; $i <= $imagesCount; $i++) {
-                    $deletedPos = rand(0, count($images) - 1);
-                    if($deletedPos < 0) {
-                        $deletedPos = 0;
-                    }
+                    $deletedPos = array_rand($images);
                     $imagesNumberPool[] = $deletedPos;
                     array_splice($images, $deletedPos, 1);
                 } 
@@ -151,16 +161,18 @@ class ArticleContentProvider
 
             //на каждой итерации берем случайное количество слов
             //если эта итерация последняя - учитываем все оставшиеся слова
-            $insertWordsCount = ($paragraphCount + $paragraphsCount > $i) ? rand(0, count($wordsPool)) : count($wordsPool); 
-            
+            if(count($wordsPool)) {
+                $insertWordsCount = ($paragraphCount + $paragraphsCount > $i) ? array_rand($wordsPool) : count($wordsPool);
+            } else {
+                $insertWordsCount = 0;
+            }
+             
             $textAsArray = explode(' ', $text);
             
             for($j = 0; $j < $insertWordsCount; $j++) {
-                $deletedPos = rand(0, count($wordsPool) - 1);
-                if($deletedPos < 0) {
-                    $deletedPos = 0;
-                }
-                array_splice($textAsArray, rand(1, count($textAsArray) - 1), 0, $wordsPool[$deletedPos]); //вставляем в текст(массив)
+                $deletedPos = array_rand($wordsPool);
+                
+                array_splice($textAsArray, array_rand($textAsArray), 0, $wordsPool[$deletedPos]); //вставляем в текст(массив)
                 array_splice($wordsPool, $deletedPos, 1); //удаляем из пула
             }
             

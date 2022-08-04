@@ -120,11 +120,8 @@ class BlaBlaArticleDashboardController extends AbstractController
         $successMessage = null;
         
         if($level > 1) {
-            $newSubscription = (new Subscription())
-                ->setLevel($level)
-                ->setUser($this->getUser())
-            ;
-
+            $newSubscription = new Subscription($this->getUser(), $level);
+           
             $em->persist($newSubscription);
             $em->flush();
 
@@ -287,6 +284,7 @@ class BlaBlaArticleDashboardController extends AbstractController
             $module = $form->getData();
             $em->persist($module);
             
+            /** @var User $user */
             $user = $this->getUser();
             $user->addModule($module);
 
@@ -317,6 +315,7 @@ class BlaBlaArticleDashboardController extends AbstractController
         EntityManagerInterface $em, 
         Module $module
     ) {
+        /** @var User $user */
         $user = $this->getUser();
         $user->removeModule($module);
 
@@ -386,6 +385,8 @@ class BlaBlaArticleDashboardController extends AbstractController
                 $articleLength = $sizeFrom;
             } elseif($sizeTo) {
                 $articleLength = $sizeTo;
+            } else {
+                $articleLength = null;
             }
             
             $slugger = new AsciiSlugger();
@@ -413,8 +414,16 @@ class BlaBlaArticleDashboardController extends AbstractController
                     ->setTheme($theme->getSlug())
                 ;
             } else {
+                if($articleLength) {
+                    $article
+                        ->setBody($contentProvider->getBody($article, $this->getUser(), $article->getWords(), $articleLength))
+                    ;  
+                } else {
+                    $article
+                        ->setBody($contentProvider->getBody($article, $this->getUser(), $article->getWords()))
+                    ;
+                }
                 $article
-                    ->setBody($contentProvider->getBody($article, $article->getWords(), $articleLength))
                     ->setTitle($contentProvider->getTitle(($article->getTitle()) ? $article->getTitle() : '', ($keyword) ? $keyword : new Keyword()))
                 ;
             }
