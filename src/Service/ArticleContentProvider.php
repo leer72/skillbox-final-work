@@ -72,20 +72,10 @@ class ArticleContentProvider
         $modulesPool = []; //Соберем сюда пул модулей для генерации статьи 
 
         if ($modules > 0) {
-            if($user) {
-                $userModules = $user->getModules()->toArray();
-            } else {
-                $userModules = [];
-            }
+            $moduleTemplates = ($user ?? null) ? ($user->getModules()->toArray() ?? $baseModules) : $baseModules;
             
-            if(count($userModules)) {
-                for ($i = 1; $i <= $modules; $i++) {
-                    $modulesPool[] = $userModules[array_rand($userModules)]->getCode();
-                }
-            } else {
-                for ($i = 1; $i <= $modules; $i++) {
-                    $modulesPool[] = $baseModules[array_rand($baseModules)];
-                }
+            for ($i = 1; $i <= $modules; $i++) {
+                $modulesPool[] = $moduleTemplates[array_rand($moduleTemplates)];
             }
         } else {
             

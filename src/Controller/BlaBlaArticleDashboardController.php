@@ -32,6 +32,8 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class BlaBlaArticleDashboardController extends AbstractController
 {
+    private static $defaultArticleLength = 3;
+    
     /**
     * @IsGranted("ROLE_USER") 
     * @Route("/dashboard", name="app_dashboard")
@@ -414,18 +416,10 @@ class BlaBlaArticleDashboardController extends AbstractController
                     ->setTheme($theme->getSlug())
                 ;
             } else {
-                if($articleLength) {
-                    $article
-                        ->setBody($contentProvider->getBody($article, $this->getUser(), $article->getWords(), $articleLength))
-                    ;  
-                } else {
-                    $article
-                        ->setBody($contentProvider->getBody($article, $this->getUser(), $article->getWords()))
-                    ;
-                }
                 $article
+                    ->setBody($contentProvider->getBody($article, $this->getUser(), $article->getWords(), $articleLength ?: self::$defaultArticleLength))
                     ->setTitle($contentProvider->getTitle(($article->getTitle()) ? $article->getTitle() : '', ($keyword) ? $keyword : new Keyword()))
-                ;
+                ;  
             }
 
             $em->persist($article);
