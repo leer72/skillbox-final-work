@@ -39,6 +39,12 @@ class Subscription
      */
     private $user;
 
+    public function __construct(User $user, int $level)
+    {
+        $this->user = $user;
+        $this->level = $level;
+    }
+
     public function getId(): ?int
     {
         return $this->id;

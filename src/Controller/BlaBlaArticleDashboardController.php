@@ -32,6 +32,8 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class BlaBlaArticleDashboardController extends AbstractController
 {
+    private static $defaultArticleLength = 3;
+    
     /**
     * @IsGranted("ROLE_USER") 
     * @Route("/dashboard", name="app_dashboard")
@@ -120,11 +122,8 @@ class BlaBlaArticleDashboardController extends AbstractController
         $successMessage = null;
         
         if($level > 1) {
-            $newSubscription = (new Subscription())
-                ->setLevel($level)
-                ->setUser($this->getUser())
-            ;
-
+            $newSubscription = new Subscription($this->getUser(), $level);
+           
             $em->persist($newSubscription);
             $em->flush();
 
@@ -287,6 +286,7 @@ class BlaBlaArticleDashboardController extends AbstractController
             $module = $form->getData();
             $em->persist($module);
             
+            /** @var User $user */
             $user = $this->getUser();
             $user->addModule($module);
 
@@ -317,6 +317,7 @@ class BlaBlaArticleDashboardController extends AbstractController
         EntityManagerInterface $em, 
         Module $module
     ) {
+        /** @var User $user */
         $user = $this->getUser();
         $user->removeModule($module);
 
@@ -386,6 +387,8 @@ class BlaBlaArticleDashboardController extends AbstractController
                 $articleLength = $sizeFrom;
             } elseif($sizeTo) {
                 $articleLength = $sizeTo;
+            } else {
+                $articleLength = null;
             }
             
             $slugger = new AsciiSlugger();
@@ -414,9 +417,9 @@ class BlaBlaArticleDashboardController extends AbstractController
                 ;
             } else {
                 $article
-                    ->setBody($contentProvider->getBody($article, $article->getWords(), $articleLength))
+                    ->setBody($contentProvider->getBody($article, $this->getUser(), $article->getWords(), $articleLength ?: self::$defaultArticleLength))
                     ->setTitle($contentProvider->getTitle(($article->getTitle()) ? $article->getTitle() : '', ($keyword) ? $keyword : new Keyword()))
-                ;
+                ;  
             }
 
             $em->persist($article);
