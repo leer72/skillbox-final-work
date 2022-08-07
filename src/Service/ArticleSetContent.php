@@ -2,7 +2,7 @@
 
 namespace App\Service;
 
-use App\Entity\User;
+use App\DTO\ArticleDTO;
 use App\Entity\Word;
 use App\Entity\Article;
 use App\Entity\Keyword;
@@ -22,15 +22,17 @@ class ArticleSetContent
 
     public function articleSetContent(
         Article &$article, 
-        ?string $title,
-        ?ThemeInterface $theme,
-        ?int $sizeFrom, 
-        ?int $sizeTo,
-        ?array $words,
-        ?array $keywordRaw,
-        User $user,
+        ArticleDTO $dto,
         EntityManagerInterface $em
     ) {
+        $keywordRaw = $dto->keyword ?? null;
+        $user = $dto->author;
+        $sizeFrom = $dto->sizeFrom ?? null;
+        $sizeTo = $dto->sizeTo ?? null;
+        $words = $dto->words ?? null;
+        $title = $dto->title;
+        $theme = $dto->theme ?? null;
+        
         $arrayForKeyword = [];
         for($i = 0; $i <= 6; $i++) {
             if(isset($keywordRaw[$i])) {

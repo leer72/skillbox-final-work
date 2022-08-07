@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\DTO\ArticleDTO;
 use DateTime;
 use App\Entity\Word;
 use App\Entity\Article;
@@ -15,7 +16,6 @@ use App\Service\FileUploader;
 use App\Repository\ArticleRepository;
 use App\Repository\ModuleRepository;
 use App\Service\ThemeContentProvider;
-use App\Service\ArticleContentProvider;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\FormInterface;
 use App\Repository\SubscriptionRepository;
@@ -142,11 +142,11 @@ class BlaBlaArticleDashboardController extends AbstractController
     public function createArticle(
         EntityManagerInterface $em, 
         Request $request,
-        ArticleContentProvider $contentProvider,
         ThemeContentProvider $themeContentProvider,
         FileUploader $articleFileUploader,
         ArticleRepository $articleRepository,
         BlaBlaArticleSubscriptionProvider $subscriptionsProvider,
+        ArticleSetContent $articleSetContent,
         int $id = 0
     )
     {
@@ -169,10 +169,10 @@ class BlaBlaArticleDashboardController extends AbstractController
                 $form, 
                 $em, 
                 $request, 
-                $contentProvider, 
                 $themeContentProvider,
                 $articleFileUploader,
-                $article
+                $article,
+                $articleSetContent
             );
 
             if (! $form->isSubmitted()) {
@@ -328,10 +328,10 @@ class BlaBlaArticleDashboardController extends AbstractController
         FormInterface $form, 
         EntityManagerInterface $em, 
         Request $request,
-        ArticleContentProvider $contentProvider,
         ThemeContentProvider $themeContentProvider,
         FileUploader $articleFileUploader,
-        Article $article
+        Article $article,
+        ArticleSetContent $articleSetContent
     ) {
         $form->handleRequest($request);
         
@@ -374,8 +374,16 @@ class BlaBlaArticleDashboardController extends AbstractController
                 }
             }
             
-            $articleSetContent = new ArticleSetContent($contentProvider);
-            $articleSetContent->articleSetContent($article, $title, $theme, $sizeFrom, $sizeTo, null, $keywordFromForm, $this->getUser(), $em);
+            $args = array(
+                'title' => $title,
+                'author' => $this->getUser(),
+                'keyword' => $keywordFromForm,
+                'words' => null,
+                'sizeFrom' => $sizeFrom,
+                'sizeTo' => $sizeTo,
+                'theme' => $theme,
+            );
+            $articleSetContent->articleSetContent($article, new ArticleDTO($args), $em);
             
             $em->persist($article);
             $em->flush();

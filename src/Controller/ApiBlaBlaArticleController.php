@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\DTO\ArticleDTO;
 use App\Entity\Article;
 use App\Service\FileUploader;
 use App\Service\ArticleSetContent;
@@ -70,7 +71,16 @@ class ApiBlaBlaArticleController extends AbstractController
             }
         }       
         
-        $articleSetContent->articleSetContent($article, $title, $theme, $size, $size, $words, $keywordRaw, $this->getUser(), $em);
+        $args = array(
+            'title' => $title,
+            'author' => $this->getUser(),
+            'keyword' => $keywordRaw,
+            'words' => $words,
+            'sizeFrom' => $size,
+            'sizeTo' => $size,
+            'theme' => $theme,
+        );
+        $articleSetContent->articleSetContent($article, new ArticleDTO($args), $em);
         
         $em->persist($article);
         $em->flush();
