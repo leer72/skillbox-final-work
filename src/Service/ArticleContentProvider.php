@@ -32,7 +32,6 @@ class ArticleContentProvider
     
     public function getBody(Article $article, User $user = null, Collection $words = null, int $modules = 3): string
     {
-        // Пока не реализован класс модулей - делаем их статичными
         $baseModules[] = <<<EOF
         <h>{{ keyword | morph(0) }}
         {{ keyword | morph(1) }}
@@ -72,8 +71,7 @@ class ArticleContentProvider
         $modulesPool = []; //Соберем сюда пул модулей для генерации статьи 
 
         if ($modules > 0) {
-            $moduleTemplates = ($user ?? null) ? ($user->getModules()->toArray() ?? $baseModules) : $baseModules;
-            
+            $moduleTemplates = ($user ?? null) ? ($user->getModules()->toArray() ?: $baseModules) : $baseModules;
             for ($i = 1; $i <= $modules; $i++) {
                 $modulesPool[] = $moduleTemplates[array_rand($moduleTemplates)];
             }
@@ -127,7 +125,7 @@ class ArticleContentProvider
             $pos = strpos($modulesAsText, self::$placeholderImages);
             $modulesAsText = substr_replace(
                 $modulesAsText, 
-                (count($images) > 0) ? '{{ article.ImageFilename(' . $imagesNumberPool[$i] . ") | imagine_filter('articles') }}" : '', 
+                (count($images)) ? '{{ article.ImageFilename(' . $imagesNumberPool[$i] . ") | imagine_filter('articles') }}" : '', 
                 $pos, 
                 strlen(self::$placeholderImages)
             );

@@ -5,7 +5,6 @@ namespace App\Controller;
 use DateTime;
 use App\Entity\Word;
 use App\Entity\Article;
-use App\Entity\Keyword;
 use App\Entity\Module;
 use App\Service\Mailer;
 use App\Entity\Subscription;
@@ -21,19 +20,17 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\FormInterface;
 use App\Repository\SubscriptionRepository;
 use App\Repository\UserRepository;
+use App\Service\ArticleSetContent;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\BlaBlaArticleSubscriptionProvider;
-use Symfony\Component\String\Slugger\AsciiSlugger;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class BlaBlaArticleDashboardController extends AbstractController
 {
-    private static $defaultArticleLength = 3;
-    
     /**
     * @IsGranted("ROLE_USER") 
     * @Route("/dashboard", name="app_dashboard")
@@ -354,13 +351,11 @@ class BlaBlaArticleDashboardController extends AbstractController
                     $keywordFromForm[] = $keywordFromForm[0];
                 }
             }
-            
-            if((count($keywordFromForm) > 0) && count($keywordFromForm)) {
-                $keyword = (new Keyword)->setKeyword($keywordFromForm);
-            } else {
-                $keyword = null;
-            }
-            
+
+            $sizeFrom = $form->get('sizeFrom')->getData();
+            $sizeTo = $form->get('sizeTo')->getData();
+            $title = $form->get('title')->getData() ?: null;
+
             foreach($article->getWords() as $word) {
                 if($word->getWord() == null || $word->getCount() == null) {
                     $article->removeWord($word);
@@ -370,36 +365,6 @@ class BlaBlaArticleDashboardController extends AbstractController
                 $em->persist($word);
                 }
             }
-            
-            $article
-                ->setKeyword($keyword)
-                ->setAuthor($this->getUser())
-            ;
-            
-            $articleLength = null;
-
-            $sizeFrom = $form->get('sizeFrom')->getData();
-            $sizeTo = $form->get('sizeTo')->getData();
-            
-            if($sizeFrom && $sizeTo) {
-                $articleLength = rand($sizeFrom, $sizeTo);
-            } elseif($sizeFrom) {
-                $articleLength = $sizeFrom;
-            } elseif($sizeTo) {
-                $articleLength = $sizeTo;
-            } else {
-                $articleLength = null;
-            }
-            
-            $slugger = new AsciiSlugger();
-            
-            if($article->getTitle()) {
-                $article->setSlug($slugger->slug($article->getTitle()) . '_' . uniqid());
-            } elseif($theme) {
-                $article->setSlug($slugger->slug($theme->getTitle($keyword))->toString(). '_' . uniqid());
-            } else {
-                $article->setSlug($slugger->slug(uniqid()));
-            }
 
             if(! $article->getId()) {
                 /** @var UploadedFile|null $image */
@@ -408,20 +373,10 @@ class BlaBlaArticleDashboardController extends AbstractController
                     $article->setImageFilename($articleFileUploader->uploadFile($image));
                 }
             }
-
-            if($theme) {
-                $article
-                    ->setBody($theme->getParagraphs($keyword))
-                    ->setTitle($theme->getTitle($keyword))
-                    ->setTheme($theme->getSlug())
-                ;
-            } else {
-                $article
-                    ->setBody($contentProvider->getBody($article, $this->getUser(), $article->getWords(), $articleLength ?: self::$defaultArticleLength))
-                    ->setTitle($contentProvider->getTitle(($article->getTitle()) ? $article->getTitle() : '', ($keyword) ? $keyword : new Keyword()))
-                ;  
-            }
-
+            
+            $articleSetContent = new ArticleSetContent($contentProvider);
+            $articleSetContent->articleSetContent($article, $title, $theme, $sizeFrom, $sizeTo, null, $keywordFromForm, $this->getUser(), $em);
+            
             $em->persist($article);
             $em->flush();
             
