@@ -7,28 +7,83 @@ use App\Service\ThemeInterface;
 
 class ArticleDTO
 {
-    public ?string $title;
+    private ?string $title;
 
-    public User $author;
+    private User $author;
 
-    public ?array $keyword;
+    private ?array $keyword;
 
-    public ?array $words;
+    private ?array $words;
 
-    public ?int $sizeFrom;
+    private ?int $sizeFrom;
 
-    public ?int $sizeTo;
+    private ?int $sizeTo;
 
-    public ?ThemeInterface $theme;
+    private ?ThemeInterface $theme;
 
-    public function __construct($args)
+    public function __construct(
+        ?string $title, 
+        User $author, 
+        ?array $keyword, 
+        ?array $words, 
+        ?int $sizeFrom, 
+        ?int $sizeTo, 
+        ?ThemeInterface $theme
+    ) {
+        $this->title = $title;
+        $this->author = $author;
+        $this->keyword = $keyword;
+        $this->words = $words;
+        $this->sizeFrom = $sizeFrom;
+        $this->sizeTo = $sizeTo;
+        $this->theme = $theme;
+    }
+
+    public static function fromArray(array $args)
     {
-        $this->title = $args['title'] ?? null;
-        $this->author = $args['author'];
-        $this->keyword = $args['keyword'] ?? null;
-        $this->words = $args['words'] ?? null;
-        $this->sizeFrom = $args['sizeFrom'] ?? null;
-        $this->sizeTo = $args['sizeTo'] ?? null;
-        $this->theme = $args['theme'] ?? null;
+        return new static(
+            $args['title'], 
+            $args['author'], 
+            $args['keyword'], 
+            $args['words'], 
+            $args['sizeFrom'], 
+            $args['sizeTo'], 
+            $args['theme']
+        );
+    }
+
+    public function getTitle()
+    {
+        return $this->title;
+    }
+
+    public function getAuthor()
+    {
+        return $this->author;
+    }
+
+    public function getKeyword()
+    {
+        return $this->keyword;
+    }
+
+    public function getWords()
+    {
+        return $this->words;
+    }
+
+    public function getSizeFrom()
+    {
+        return $this->sizeFrom;
+    }
+
+    public function getSizeTo()
+    {
+        return $this->sizeTo;
+    }
+
+    public function getTheme()
+    {
+        return $this->theme;
     }
 }

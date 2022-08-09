@@ -383,7 +383,7 @@ class BlaBlaArticleDashboardController extends AbstractController
                 'sizeTo' => $sizeTo,
                 'theme' => $theme,
             );
-            $articleSetContent->articleSetContent($article, new ArticleDTO($args), $em);
+            $articleSetContent->articleSetContent($article, ArticleDTO::fromArray($args), $em);
             
             $em->persist($article);
             $em->flush();

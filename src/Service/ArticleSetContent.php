@@ -25,13 +25,13 @@ class ArticleSetContent
         ArticleDTO $dto,
         EntityManagerInterface $em
     ) {
-        $keywordRaw = $dto->keyword ?? null;
-        $user = $dto->author;
-        $sizeFrom = $dto->sizeFrom ?? null;
-        $sizeTo = $dto->sizeTo ?? null;
-        $words = $dto->words ?? null;
-        $title = $dto->title;
-        $theme = $dto->theme ?? null;
+        $keywordRaw = $dto->getKeyword();
+        $user = $dto->getAuthor();
+        $sizeFrom = $dto->getSizeFrom();
+        $sizeTo = $dto->getSizeTo();
+        $words = $dto->getWords();
+        $title = $dto->getTitle();
+        $theme = $dto->getTheme();
         
         $arrayForKeyword = [];
         for($i = 0; $i <= 6; $i++) {
